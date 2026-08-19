@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4b6c8" />
+  <title>SellBucket Florist — Handmade Flower Bouquet</title>
+  <style>
+    :root{
+      --rose:#c96f8f; --rose-dark:#8f4965; --pink:#f7dbe5; --cream:#fffaf7;
+      --ink:#3e3036; --muted:#806f77; --line:#eadde1; --white:#fff;
+      --green:#718a72; --shadow:0 18px 50px rgba(91,55,67,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#fffaf8,#fff);color:var(--ink);line-height:1.6}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer;border:0}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+    .hidden{display:none!important}
+    .container{width:min(1120px,92%);margin:auto}
+    .glass{background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow)}
+    .btn{padding:13px 18px;border-radius:999px;font-weight:800;transition:.25s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:var(--rose);color:#fff;box-shadow:0 10px 25px rgba(201,111,143,.28)}
+    .btn-soft{background:var(--pink);color:var(--rose-dark)}
+    .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink)}
+    .btn-danger{background:#fff0f2;color:#a34e62}
+    .eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--rose-dark);font-weight:900}
+    .section-title{font-family:Georgia,serif;font-size:clamp(30px,5vw,48px);line-height:1.1;margin:8px 0 12px}
+    .muted{color:var(--muted)}
+    .toast{position:fixed;right:20px;bottom:20px;background:#3e3036;color:#fff;padding:13px 18px;border-radius:14px;z-index:1000;box-shadow:var(--shadow);animation:slideIn .3s ease}
+    @keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes float{50%{transform:translateY(-7px)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .animate{animation:fadeUp .65s ease both}
+
+    /* Auth */
+    #authView{min-height:100vh;display:grid;place-items:center;padding:25px;background:radial-gradient(circle at 20% 20%,#ffe7ef,transparent 35%),radial-gradient(circle at 80% 80%,#f2e4ff,transparent 35%),#fffaf8}
+    .auth-card{width:min(440px,94vw);padding:34px;border-radius:32px}
+    .auth-logo{width:115px;height:115px;object-fit:contain;margin:0 auto 15px;border-radius:28px;animation:float 4s ease-in-out infinite}
+    .auth-card h1{text-align:center;font-family:Georgia,serif;font-size:34px}
+    .auth-card>p{text-align:center;margin:5px 0 25px}
+    .form-group{margin:13px 0}
+    label{display:block;font-weight:800;font-size:13px;margin-bottom:6px}
+    input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;outline:none;color:var(--ink);transition:.2s}
+    input:focus,textarea:focus,select:focus{border-color:var(--rose);box-shadow:0 0 0 4px #f7dbe5}
+    textarea{resize:vertical;min-height:90px}
+    .auth-actions{display:grid;gap:10px;margin-top:18px}
+    .demo-note{font-size:12px;background:#fff5f7;border-radius:12px;padding:10px;color:var(--muted);margin-top:14px}
+
+    /* App */
+    #appView{min-height:100vh}
+    header{position:sticky;top:0;z-index:50;background:rgba(255,250,248,.82);backdrop-filter:blur(16px);border-bottom:1px solid rgba(234,221,225,.8)}
+    nav{height:74px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:950}
+    .brand img{width:48px;height:48px;object-fit:contain}
+    .brand span{font-family:Georgia,serif;font-size:20px}
+    .nav-actions{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:43px;height:43px;border-radius:50%;background:#fff;border:1px solid var(--line);position:relative}
+    .badge{position:absolute;right:-3px;top:-3px;background:var(--rose);color:#fff;font-size:10px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-weight:900}
+    .profile-chip{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border:1px solid var(--line);background:#fff;border-radius:999px;font-weight:800;font-size:13px}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--pink);display:grid;place-items:center;color:var(--rose-dark);font-weight:900}
+
+    .hero{padding:70px 0 40px}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:45px;align-items:center}
+    .hero h2{font-family:Georgia,serif;font-size:clamp(45px,7vw,76px);line-height:.98;letter-spacing:-2px;margin:10px 0 18px}
+    .hero h2 em{color:var(--rose);font-weight:400}
+    .hero p{max-width:570px;color:var(--muted);font-size:17px}
+    .hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+    .hero-art{position:relative;min-height:410px;display:grid;place-items:center}
+    .hero-art:before{content:"";position:absolute;width:350px;height:350px;border-radius:50%;background:#f7dbe5;filter:blur(1px)}
+    .hero-art img{position:relative;width:min(410px,90%);height:410px;object-fit:contain;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 20px 25px rgba(74,40,50,.18))}
+    .mini-card{position:absolute;bottom:10px;left:0;background:#fff;padding:12px 16px;border-radius:18px;box-shadow:var(--shadow);font-size:12px}
+    .mini-card b{display:block;color:var(--rose-dark);font-size:15px}
+
+    .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:35px 0 65px}
+    .trust-card{padding:18px;border-radius:20px;background:#fff;border:1px solid var(--line)}
+    .trust-card strong{display:block;margin-bottom:3px}
+
+    section{padding:45px 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:22px}
+    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .product{overflow:hidden;border-radius:var(--radius);background:#fff;border:1px solid var(--line);box-shadow:0 10px 35px rgba(91,55,67,.07);transition:.3s}
+    .product:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+    .product-image{height:290px;background:linear-gradient(145deg,#fff7f9,#f5edf1);padding:18px;display:grid;place-items:center;position:relative}
+    .product-image img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+    .pill{position:absolute;left:14px;top:14px;background:#fff;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;color:var(--rose-dark)}
+    .product-body{padding:18px}
+    .product-body h3{font-family:Georgia,serif;font-size:22px}
+    .price{font-size:20px;font-weight:950;color:var(--rose-dark);margin:5px 0 15px}
+    .product-actions{display:flex;gap:8px}
+    .product-actions .btn{flex:1}
+
+    .about{background:#fff6f8;border-top:1px solid #f0dfe5;border-bottom:1px solid #f0dfe5}
+    .about-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:35px;align-items:center}
+    .about-logo{background:#fff;border-radius:30px;padding:20px;display:grid;place-items:center}
+    .about-logo img{max-height:320px;object-fit:contain}
+    .features{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:20px}
+    .feature{padding:15px;background:#fff;border-radius:17px;border:1px solid var(--line)}
+    .feature b{display:block}
+
+    footer{padding:40px 0 70px}
+    .footer-box{border-radius:28px;padding:28px;background:#3e3036;color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .footer-box .muted{color:#d8cdd1}
+
+    /* drawer / modal */
+    .overlay{position:fixed;inset:0;background:rgba(42,27,34,.42);z-index:100;opacity:0;pointer-events:none;transition:.25s}
+    .overlay.open{opacity:1;pointer-events:auto}
+    .drawer{position:absolute;right:0;top:0;height:100%;width:min(470px,94vw);background:#fff;transform:translateX(100%);transition:.3s;padding:22px;overflow:auto}
+    .overlay.open .drawer{transform:none}
+    .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .cart-item{display:grid;grid-template-columns:76px 1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+    .cart-item img{width:76px;height:76px;border-radius:14px;object-fit:contain;background:#fff6f8}
+    .qty{display:flex;align-items:center;gap:8px;margin-top:8px}
+    .qty button{width:27px;height:27px;border-radius:50%;background:var(--pink);color:var(--rose-dark);font-weight:900}
+    .cart-total{margin-top:20px;padding:18px;background:#fff6f8;border-radius:18px}
+    .cart-total div{display:flex;justify-content:space-between;margin:5px 0}
+    .modal{position:fixed;inset:0;z-index:200;background:rgba(42,27,34,.45);display:none;place-items:center;padding:15px}
+    .modal.show{display:grid}
+    .modal-card{width:min(720px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:28px;padding:25px;box-shadow:var(--shadow)}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .close{width:38px;height:38px;border-radius:50%;background:#f6eef1}
+    .checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .payment-option{border:1px solid var(--line);padding:13px;border-radius:15px;display:flex;gap:10px;align-items:center;cursor:pointer}
+    .payment-option:has(input:checked){border-color:var(--rose);background:#fff4f7}
+    .payment-option input{width:auto}
+    .order-card{padding:16px;border:1px solid var(--line);border-radius:18px;margin:10px 0;background:#fff}
+    .status{display:inline-flex;padding:6px 10px;border-radius:999px;background:#edf5ee;color:#55705a;font-size:11px;font-weight:900}
+    .stepper{display:flex;justify-content:space-between;gap:5px;margin:25px 0;position:relative}
+    .step{flex:1;text-align:center;font-size:11px;color:#9b8d93;position:relative}
+    .step:before{content:"";display:block;width:24px;height:24px;border-radius:50%;background:#eee;margin:0 auto 7px;position:relative;z-index:2}
+    .step.active{color:var(--rose-dark);font-weight:900}
+    .step.active:before{background:var(--rose)}
+    .stepper:after{content:"";position:absolute;left:8%;right:8%;top:11px;height:2px;background:#eee;z-index:0}
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    @media(max-width:850px){
+      .hero-grid,.about-grid{grid-template-columns:1fr}
+      .hero{padding-top:40px}
+      .hero-art{order:-1;min-height:330px}
+      .hero-art img{height:330px}
+      .products{grid-template-columns:1fr 1fr}
+      .trust{grid-template-columns:1fr}
+      .profile-chip span{display:none}
+    }
+    @media(max-width:560px){
+      nav{height:66px}
+      .brand span{font-size:17px}
+      .brand img{width:42px;height:42px}
+      .hero h2{font-size:48px}
+      .products{grid-template-columns:1fr}
+      .product-image{height:320px}
+      .checkout-grid,.profile-grid,.features{grid-template-columns:1fr}
+      .footer-box{flex-direction:column;align-items:flex-start}
+      .hero-buttons .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================= AUTH / LOGIN ========================= -->
+  <div id="authView">
+    <div class="auth-card glass animate">
+      <img class="auth-logo" src="assets/sellbucket_logo.png" alt="SellBucket Florist">
+      <div class="eyebrow" style="text-align:center">SELLBUCKET FLORIST</div>
+      <h1>Welcome back 🌷</h1>
+      <p class="muted">Masuk dulu untuk melihat katalog & melakukan pemesanan.</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="nama@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" required>
+        </div>
+        <div class="auth-actions">
+          <button class="btn btn-primary" type="submit">Masuk ke SellBucket →</button>
+          <button class="btn btn-outline" type="button" onclick="googleLogin()">G  Lanjut dengan Google</button>
+          <button class="btn btn-soft" type="button" onclick="openRegister()">Buat akun baru</button>
+        </div>
+      </form>
+      <div class="demo-note">
+        <b>Mode frontend demo:</b> login/OTP disimulasikan dengan JavaScript & localStorage.
+        Untuk produksi, sambungkan ke Firebase/Auth atau backend sendiri.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= MAIN APP ========================= -->
+  <div id="appView" class="hidden">
+    <header>
+      <div class="container">
+        <nav>
+          <a class="brand" href="#home">
+            <img src="assets/sellbucket_logo.png" alt="SellBucket">
+            <span>SellBucket Florist</span>
+          </a>
+          <div class="nav-actions">
+            <button class="icon-btn" onclick="openOrders()" title="Pesanan">📦</button>
+            <button class="icon-btn" onclick="openCart()" title="Keranjang">🛒<span id="cartBadge" class="badge">0</span></button>
+            <button class="profile-chip" onclick="openProfile()">
+              <span id="avatar" class="avatar">S</span><span id="navName">User</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero">
+        <div class="container hero-grid">
+          <div class="animate">
+            <div class="eyebrow">Handmade with love · Est. 2025</div>
+            <h2>Buket kecil,<br><em>rasa yang besar.</em></h2>
+            <p>Temukan buket handmade yang kalem, elegan, dan bisa kamu custom sesuai momen spesialmu.</p>
+            <div class="hero-buttons">
+              <a href="#catalog" class="btn btn-primary">Lihat Katalog 🌸</a>
+              <button class="btn btn-outline" onclick="openOrders()">Cek Pesanan</button>
+            </div>
+          </div>
+          <div class="hero-art animate">
+            <img src="assets/sellbucket_bouquet_pink.png" alt="Bucket Kawat Bulu">
+            <div class="mini-card">
+              <span>Favorite bouquet</span>
+              <b>Bucket Kawat Bulu</b>
+              <small>Mulai Rp35.000</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container trust">
+        <div class="trust-card"><strong>🌷 Handmade</strong><span class="muted">Dirangkai dengan penuh perhatian.</span></div>
+        <div class="trust-card"><strong>🎀 Bisa Custom</strong><span class="muted">Tambahkan catatan sesuai request.</span></div>
+        <div class="trust-card"><strong>💌 Customer Care</strong><span class="muted">Bantuan cepat via WhatsApp.</span></div>
+      </div>
+
+      <section id="catalog">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Our collection</div>
+              <h2 class="section-title">Katalog Buket</h2>
+              <p class="muted">Produk di bawah tinggal kamu ganti nama, harga, foto, atau deskripsinya.</p>
+            </div>
+          </div>
+          <div id="productGrid" class="products"></div>
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="container about-grid">
+          <div class="about-logo">
+            <img src="assets/sellbucket_logo.png" alt="SellBucket Florist Logo">
+          </div>
+          <div>
+            <div class="eyebrow">A little story</div>
+            <h2 class="section-title">Dibuat untuk momen yang ingin kamu ingat.</h2>
+            <p class="muted">SellBucket Florist hadir dengan buket handmade yang dibuat untuk ulang tahun, wisuda, anniversary, hadiah, atau sekadar bilang “aku sayang kamu”.</p>
+            <div class="features">
+              <div class="feature"><b>🎨 Custom request</b><span class="muted">Tulis request di catatan pesanan.</span></div>
+              <div class="feature"><b>🛍️ Keranjang</b><span class="muted">Tambah beberapa produk sekaligus.</span></div>
+              <div class="feature"><b>💳 Flexible payment</b><span class="muted">COD, e-wallet, atau QRIS.</span></div>
+              <div class="feature"><b>📍 Order tracking</b><span class="muted">Lihat status & estimasi tiba.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-box">
+          <div><b>SellBucket Florist 🌷</b><p class="muted">Handmade flower bouquet with love.</p></div>
+          <button class="btn btn-primary" onclick="contactWA()">Chat Customer Service</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================= CART DRAWER ========================= -->
+  <div id="cartOverlay" class="overlay" onclick="closeCart(event)">
+    <aside class="drawer" onclick="event.stopPropagation()">
+      <div class="drawer-head"><h2>Keranjang 🛒</h2><button class="close" onclick="closeCart()">×</button></div>
+      <div id="cartItems"></div>
+      <div id="emptyCart" class="muted" style="text-align:center;padding:45px 10px">Keranjang masih kosong 🌷</div>
+      <div id="cartSummary" class="cart-total hidden">
+        <div><span>Subtotal</span><b id="subtotal">Rp0</b></div>
+        <div><span>Ongkir</span><b id="shipping">Rp0</b></div>
+        <hr style="border:0;border-top:1px solid var(--line);margin:10px 0">
+        <div><strong>Total</strong><strong id="grandTotal">Rp0</strong></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="openCheckout()">Lanjut Checkout →</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ========================= MODAL ========================= -->
+  <div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-card">
+      <div class="modal-head"><h2 id="modalTitle">SellBucket</h2><button class="close" onclick="closeModal()">×</button></div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       SELLBUCKET FLORIST — FRONTEND DEMO
+       Produk bisa diganti di array PRODUCTS di bawah.
+       Untuk produksi: sambungkan auth, database, payment gateway,
+       WhatsApp API/backend, dan order tracking ke server.
+    ============================================================ */
+
+    const PRODUCTS = [
+      {
+        id: "kawat-bulu",
+        name: "Bucket Kawat Bulu",
+        price: 35000,
+        image: "assets/sellbucket_bouquet_pink.png",
+        tag: "Best Seller",
+        desc: "Buket bernuansa pink lembut dengan tampilan manis dan elegan."
+      },
+      {
+        id: "sun-flowers",
+        name: "Bucket Sun Flowers",
+        price: 70000,
+        image: "assets/sellbucket_bouquet_yelow_blue.png",
+        tag: "Cheerful",
+        desc: "Kombinasi bunga cerah dengan wrapping biru yang fresh."
+      },
+      {
+        id: "premium-mix",
+        name: "Premium Mix Bucket",
+        price: 150000,
+        image: "assets/sellbucket_bouquet_premium_mix.png",
+        tag: "Premium",
+        desc: "Mix bouquet premium untuk hadiah dan momen yang lebih spesial."
+      }
+    ];
+
+    let cart = JSON.parse(localStorage.getItem("sb_cart") || "[]");
+    let orders = JSON.parse(localStorage.getItem("sb_orders") || "[]");
+    let user = JSON.parse(localStorage.getItem("sb_user") || "null");
+
+    const rupiah = n => new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
+
+    function save(){
+      localStorage.setItem("sb_cart", JSON.stringify(cart));
+      localStorage.setItem("sb_orders", JSON.stringify(orders));
+      localStorage.setItem("sb_user", JSON.stringify(user));
+    }
+
+    function toast(msg){
+      const el=document.createElement("div"); el.className="toast"; el.textContent=msg;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+    }
+
+    function renderProducts(){
+      document.getElementById("productGrid").innerHTML = PRODUCTS.map(p=>`
+        <article class="product animate">
+          <div class="product-image">
+            <span class="pill">${p.tag}</span>
+            <img src="${p.image}" alt="${p.name}">
+          </div>
+          <div class="product-body">
+            <h3>${p.name}</h3>
+            <p class="muted">${p.desc}</p>
+            <div class="price">${rupiah(p.price)}</div>
+            <div class="product-actions">
+              <button class="btn btn-outline" onclick="viewProduct('${p.id}')">Detail</button>
+              <button class="btn btn-primary" onclick="addToCart('${p.id}')">+ Keranjang</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function viewProduct(id){
+      const p=PRODUCTS.find(x=>x.id===id);
+      document.getElementById("modalTitle").textContent=p.name;
+      document.getElementById("modalContent").innerHTML=`
+        <div class="checkout-grid">
+          <div style="background:#fff6f8;border-radius:20px;padding:15px"><img src="${p.image}" style="width:100%;height:300px;object-fit:contain"></div>
+          <div>
+            <span class="status">${p.tag}</span>
+            <h2 style="font-family:Georgia,serif;margin:10px 0">${p.name}</h2>
+            <div class="price">${rupiah(p.price)}</div>
+            <p class="muted">${p.desc}</p>
+            <div class="form-group">
+              <label>Catatan / request custom</label>
+              <textarea id="productNote" placeholder="Contoh: wrapping warna pink, tambahkan kartu ucapan..."></textarea>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="addToCart('${p.id}', document.getElementById('productNote').value);closeModal()">Tambah ke Keranjang</button>
+          </div>
+        </div>`;
+      openModal();
+    }
+
+    function addToCart(id,note=""){
+      const item=cart.find(x=>x.id===id);
+      if(item){ item.qty++; if(note) item.note=note; }
+      else cart.push({id,qty:1,note});
+      save(); updateCart(); toast("Produk masuk ke keranjang 🌷");
+    }
+
+    function updateCart(){
+      const count=cart.reduce((s,x)=>s+x.qty,0);
+      document.getElementById("cartBadge").textContent=count;
+      const wrap=document.getElementById("cartItems");
+      document.getElementById("emptyCart").classList.toggle("hidden",cart.length>0);
+      document.getElementById("cartSummary").classList.toggle("hidden",cart.length===0);
+      wrap.innerHTML=cart.map(item=>{
+        const p=PRODUCTS.find(x=>x.id===item.id);
+        return `<div class="cart-item">
+          <img src="${p.image}" alt="">
+          <div><b>${p.name}</b><div class="muted">${rupiah(p.price)}</div>
+            <div class="qty"><button onclick="changeQty('${p.id}',-1)">−</button><b>${item.qty}</b><button onclick="changeQty('${p.id}',1)">+</button></div>
+            ${item.note?`<small class="muted">Catatan: ${item.note}</small>`:""}
+          </div>
+          <button class="btn btn-danger" style="padding:6px 9px;height:35px" onclick="removeCart('${p.id}')">×</button>
+        </div>`;
+      }).join("");
+      const sub=cart.reduce((s,x)=>s+PRODUCTS.find(p=>p.id===x.id).price*x.qty,0);
+      const ship=sub?15000:0;
+      document.getElementById("subtotal").textContent=rupiah(sub);
+      document.getElementById("shipping").textContent=rupiah(ship);
+      document.getElementById("grandTotal").textContent=rupiah(sub+ship);
+    }
+
+    function changeQty(id,delta){
+      const i=cart.find(x=>x.id===id); if(!i)return;
+      i.qty+=delta; if(i.qty<=0)cart=cart.filter(x=>x.id!==id);
+      save(); updateCart();
+    }
+    function removeCart(id){cart=cart.filter(x=>x.id!==id);save();updateCart();}
+
+    function openCart(){updateCart();document.getElementById("cartOverlay").classList.add("open")}
+    function closeCart(e){if(!e || e.target.id==="cartOverlay")document.getElementById("cartOverlay").classList.remove("open")}
+
+    function openCheckout(){
+      if(!cart.length)return toast("Keranjang masih kosong.");
+      closeCart();
+      if(!user?.profileComplete){openProfile(true);return}
+      document.getElementById("modalTitle").textContent="Checkout & Pembayaran";
+      const sub=cart.reduce((s,x)=>s+PRODUCTS.find(p=>p.id===x.id).price*x.qty,0), total=sub+15000;
+      document.getElementById("modalContent").innerHTML=`
+        <div class="checkout-grid">
+          <div>
+            <h3>Detail Pengiriman</h3>
+            <div class="order-card"><b>${user.name}</b><br>${user.phone||"-"}<br><span class="muted">${user.address}</span></div>
+            <label>Catatan pesanan</label>
+            <textarea id="checkoutNote" placeholder="Request tambahan untuk seluruh pesanan..."></textarea>
+          </div>
+          <div>
+            <h3>Metode Pembayaran</h3>
+            <div style="display:grid;gap:8px;margin:10px 0">
+              <label class="payment-option"><input type="radio" name="pay" value="COD" checked> 🚚 COD (Bayar di tempat)</label>
+              <label class="payment-option"><input type="radio" name="pay" value="E-Wallet"> 📱 E-Wallet</label>
+              <label class="payment-option"><input type="radio" name="pay" value="QRIS"> ▣ QRIS</label>
+            </div>
+            <div class="cart-total">
+              <div><span>Subtotal</span><b>${rupiah(sub)}</b></div>
+              <div><span>Ongkir</span><b>${rupiah(15000)}</b></div>
+              <div><strong>Total</strong><strong>${rupiah(total)}</strong></div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:18px" onclick="placeOrder()">Buat Pesanan 🌷</button>
+        <p class="muted" style="font-size:12px;margin-top:9px">Demo frontend: pembayaran belum terhubung ke payment gateway asli.</p>`;
+      openModal();
+    }
+
+    function placeOrder(){
+      const pay=document.querySelector('input[name="pay"]:checked')?.value||"COD";
+      const note=document.getElementById("checkoutNote")?.value||"";
+      const sub=cart.reduce((s,x)=>s+PRODUCTS.find(p=>p.id===x.id).price*x.qty,0);
+      const order={
+        id:"SB-"+Date.now().toString().slice(-8),
+        date:new Date().toLocaleString("id-ID"),
+        items:JSON.parse(JSON.stringify(cart)),
+        subtotal:sub, shipping:15000, total:sub+15000,
+        payment:pay,note,status:pay==="COD"?"Diproses":"Menunggu Pembayaran",
+        eta:"2–4 hari kerja"
+      };
+      orders.unshift(order);cart=[];save();updateCart();closeModal();toast("Pesanan berhasil dibuat 🎉");
+      setTimeout(openOrders,450);
+    }
+
+    function openOrders(){
+      document.getElementById("modalTitle").textContent="Pesanan Saya 📦";
+      if(!orders.length){
+        document.getElementById("modalContent").innerHTML=`<div style="text-align:center;padding:35px"><div style="font-size:50px">🌷</div><h3>Belum ada pesanan</h3><p class="muted">Pesanan kamu akan muncul di sini.</p></div>`;
+      } else {
+        document.getElementById("modalContent").innerHTML=orders.map(o=>`
+          <div class="order-card">
+            <div style="display:flex;justify-content:space-between;gap:10px"><b>${o.id}</b><span class="status">${o.status}</span></div>
+            <p class="muted">${o.date} · ${o.payment}</p>
+            <p><b>Total ${rupiah(o.total)}</b> · Estimasi tiba <b>${o.eta}</b></p>
+            <button class="btn btn-soft" onclick="trackOrder('${o.id}')">Lacak Pesanan →</button>
+          </div>`).join("");
+      }
+      openModal();
+    }
+
+    function trackOrder(id){
+      const o=orders.find(x=>x.id===id);
+      document.getElementById("modalTitle").textContent="Lacak "+o.id;
+      document.getElementById("modalContent").innerHTML=`
+        <div class="order-card"><b>Status saat ini:</b> ${o.status}<br><span class="muted">Estimasi tiba: ${o.eta}</span></div>
+        <div class="stepper">
+          <div class="step active">Pesanan dibuat</div>
+          <div class="step active">Diproses</div>
+          <div class="step ${o.status==="Dikirim"||o.status==="Selesai"?"active":""}">Dikirim</div>
+          <div class="step ${o.status==="Selesai"?"active":""}">Tiba</div>
+        </div>
+        <p class="muted">Pada versi produksi, status ini bisa diambil real-time dari database/admin dashboard.</p>`;
+    }
+
+    function openProfile(force=false){
+      document.getElementById("modalTitle").textContent=force?"Lengkapi Profil Dulu 👤":"Profil Saya";
+      const u=user||{};
+      document.getElementById("modalContent").innerHTML=`
+        <p class="muted" style="margin-bottom:15px">${force?"Alamat wajib dilengkapi sebelum checkout.":"Data ini digunakan untuk pengiriman pesanan."}</p>
+        <div class="profile-grid">
+          <div class="form-group"><label>Nama lengkap</label><input id="pName" value="${u.name||""}" placeholder="Nama lengkap"></div>
+          <div class="form-group"><label>No. WhatsApp</label><input id="pPhone" value="${u.phone||""}" placeholder="08xxxxxxxxxx"></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Alamat lengkap</label><textarea id="pAddress" placeholder="Jalan, nomor rumah, RT/RW...">${u.address||""}</textarea></div>
+          <div class="form-group"><label>Kecamatan</label><input id="pDistrict" value="${u.district||""}" placeholder="Kecamatan"></div>
+          <div class="form-group"><label>Kota/Kabupaten</label><input id="pCity" value="${u.city||""}" placeholder="Kota/Kabupaten"></div>
+          <div class="form-group"><label>Kode Pos</label><input id="pZip" value="${u.zip||""}" placeholder="Kode pos"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveProfile()">Simpan Profil ✓</button>`;
+      openModal();
+    }
+
+    function saveProfile(){
+      const name=document.getElementById("pName").value.trim(), address=document.getElementById("pAddress").value.trim();
+      if(!name||!address)return toast("Nama dan alamat wajib diisi.");
+      user={...(user||{}),name,phone:document.getElementById("pPhone").value,district:document.getElementById("pDistrict").value,city:document.getElementById("pCity").value,zip:document.getElementById("pZip").value,address,profileComplete:true};
+      save();renderUser();closeModal();toast("Profil berhasil disimpan ✓");
+    }
+
+    function renderUser(){
+      const name=user?.name||"User";
+      document.getElementById("navName").textContent=name;
+      document.getElementById("avatar").textContent=name[0]?.toUpperCase()||"S";
+    }
+
+    function openRegister(){
+      document.getElementById("modalTitle").textContent="Buat Akun 🌸";
+      document.getElementById("modalContent").innerHTML=`
+        <div class="form-group"><label>Nama</label><input id="rName" placeholder="Nama kamu"></div>
+        <div class="form-group"><label>Email Gmail</label><input id="rEmail" type="email" placeholder="nama@gmail.com"></div>
+        <div class="form-group"><label>Password</label><input id="rPass" type="password" placeholder="Minimal 6 karakter"></div>
+        <button class="btn btn-primary" style="width:100%" onclick="registerUser()">Daftar & Kirim OTP</button>
+        <p class="muted" style="font-size:12px;margin-top:10px">OTP demo akan ditampilkan sebagai notifikasi. Untuk OTP Gmail asli, gunakan Firebase Authentication atau backend email.</p>`;
+      openModal();
+    }
+
+    function registerUser(){
+      const name=document.getElementById("rName").value.trim(), email=document.getElementById("rEmail").value.trim();
+      if(!name||!email)return toast("Nama dan email wajib diisi.");
+      const otp=Math.floor(100000+Math.random()*900000);
+      sessionStorage.setItem("sb_demo_otp",otp);
+      sessionStorage.setItem("sb_pending_user",JSON.stringify({name,email}));
+      closeModal(); toast("OTP demo: "+otp);
+      setTimeout(openOTP,350);
+    }
+
+    function openOTP(){
+      document.getElementById("modalTitle").textContent="Verifikasi OTP ✉️";
+      document.getElementById("modalContent").innerHTML=`
+        <p class="muted">Masukkan OTP 6 digit yang dikirim ke Gmail kamu.</p>
+        <div class="form-group"><label>Kode OTP</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="123456"></div>
+        <button class="btn btn-primary" style="width:100%" onclick="verifyOTP()">Verifikasi & Masuk</button>`;
+      openModal();
+    }
+
+    function verifyOTP(){
+      const otp=document.getElementById("otp").value, valid=sessionStorage.getItem("sb_demo_otp");
+      if(otp!==valid)return toast("OTP salah.");
+      const pending=JSON.parse(sessionStorage.getItem("sb_pending_user"));
+      user={...pending,profileComplete:false};save();sessionStorage.removeItem("sb_demo_otp");sessionStorage.removeItem("sb_pending_user");
+      closeModal();showApp();toast("Akun berhasil dibuat 🎉");
+      setTimeout(()=>openProfile(true),500);
+    }
+
+    function googleLogin(){
+      // Frontend simulation only.
+      const email=prompt("Demo Google Login — masukkan Gmail kamu:");
+      if(!email)return;
+      user={name:email.split("@")[0],email,profileComplete:false};save();showApp();toast("Login Google demo berhasil.");
+      setTimeout(()=>openProfile(true),500);
+    }
+
+    function loginFormSubmit(e){
+      e.preventDefault();
+      const email=document.getElementById("loginEmail").value.trim();
+      user={name:email.split("@")[0]||"User",email,profileComplete:false};
+      save();showApp();toast("Login berhasil.");
+      setTimeout(()=>openProfile(true),500);
+    }
+
+    function showApp(){
+      document.getElementById("authView").classList.add("hidden");
+      document.getElementById("appView").classList.remove("hidden");
+      renderProducts();renderUser();updateCart();
+    }
+
+    function contactWA(){
+      // GANTI NOMOR INI DENGAN NOMOR CS SELLBUCKET.
+      const phone="6281234567890";
+      const text=encodeURIComponent("Halo SellBucket Florist 🌷 Saya mau bertanya tentang katalog buket.");
+      window.open(`https://wa.me/${phone}?text=${text}`,"_blank");
+    }
+
+    function openModal(){document.getElementById("modal").classList.add("show")}
+    function closeModal(){document.getElementById("modal").classList.remove("show")}
+
+    document.getElementById("loginForm").addEventListener("submit",loginFormSubmit);
+
+    // Session gate
+    if(user){
+      showApp();
+    }
+  </script>
+</body>
+</html>
