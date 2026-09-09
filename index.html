@@ -642,9 +642,14 @@
     });
 
     async function googleLogin() {
-      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google" });
-      if(error) showToast("Google Login Error: " + error.message);
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "https://sellbucket-floriste.pages.dev"
     }
+  });
+  if(error) showToast("Google Login Error: " + error.message);
+}
 
     function showApp() {
       document.getElementById("authView").classList.add("hidden");
