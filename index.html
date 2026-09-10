@@ -847,16 +847,13 @@
     const ADMIN_SECRET_KEY = "logadminsellbucket.092307"; 
 
     function bukaAdmin() {
-      // Munculkan kotak input password di layar
-      const inputKey = prompt("Masukkan Secret Key Admin");
-
-      // Kalau dibatalkan, hentikan
+      const inputKey = prompt("Masukkan Secret Key Admin:");
       if (inputKey === null) return;
 
-      // Cek apakah key-nya bener
       if (inputKey === ADMIN_SECRET_KEY) {
-        alert("Akses diterima, wellcome back my Boss! 👑");
-        switchScreen('admin'); // Langsung buka halaman admin
+        alert("Akses diterima, WELLCOME BACK MY BOSS! 👑");
+        switchScreen('admin'); // Buka layar admin
+        loadAdminOrders();     // Langsung muat data pesanan dari database!
       } else {
         alert("❌ Secret Key salah! Lu bukan owner nih wkwk.");
       }
