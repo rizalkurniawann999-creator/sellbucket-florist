@@ -246,17 +246,47 @@
           </div>
         </div>
 
-        <!-- PROFIL SCREEN -->
-        <div id="screen-profile" class="screen">
-          <div class="profile-header">
-            <div class="profile-avatar" id="profileAvatar">U</div>
-            <div>
-              <h3 id="profileName">User Name</h3>
-              <p style="font-size:12px; color:var(--muted);" id="profileEmail">user@gmail.com</p>
-            </div>
-          </div>
-          <div class="menu-list">
-            <div class="menu-list-item" onclick="openModal('orderModal')"><span>📦 Pesanan Saya</span> <span>›</span></div>
+       <!-- PROFIL SCREEN -->
+<div id="screen-profile" class="screen">
+  <div class="profile-header">
+    <div class="profile-avatar" id="profileAvatar">U</div>
+    <div>
+      <h3 id="profileName">User Name</h3>
+      <p style="font-size:12px; color:var(--muted);" id="profileEmail">user@gmail.com</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PESANAN SAYA -->
+  <div style="background: #fff; margin: 15px 20px; padding: 15px 20px; border-radius: 12px; box-shadow: var(--shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="font-size: 15px; margin: 0; color: #333;">Pesanan Saya</h3>
+      <span style="font-size: 12px; color: var(--muted); cursor: pointer;" onclick="bukaPesanan('Semua')">Lihat Riwayat Pesanan ></span>
+    </div>
+    <div style="display: flex; justify-content: space-between; text-align: center;">
+      <!-- Ikon Belum Bayar -->
+      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Menunggu Pembayaran')">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"></path><path d="M21 12H10v4h11v-4z"></path></svg>
+        <div style="font-size: 11px; color: #555; margin-top: 5px;">Belum Bayar</div>
+      </div>
+      <!-- Ikon Dikemas -->
+      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Diproses')">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikemas</div>
+      </div>
+      <!-- Ikon Dikirim -->
+      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Dikirim')">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikirim</div>
+      </div>
+      <!-- Ikon Selesai -->
+      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Selesai')">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <div style="font-size: 11px; color: #555; margin-top: 5px;">Selesai</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-list">
             <div class="menu-list-item" onclick="openModal('voucherModal')"><span>🎟️ Voucher Saya</span> <span>›</span></div>
             <div class="menu-list-item" onclick="openModal('profileEditModal')"><span>⚙️ Pengaturan Akun</span> <span>›</span></div>
             <div class="menu-list-item" onclick="contactWA()"><span>🎧 Bantuan (CS)</span> <span>›</span></div>
@@ -624,25 +654,74 @@
         showToast("Terjadi kesalahan sistem!");
       }
     }
-    function renderOrders() {
+    // 1. Fungsi penyambung klik ikon ke modal
+    function bukaPesanan(statusFilter) {
+      openModal('orderModal');
+      // Kasih jeda 50ms biar gak ketimpa sama trigger render bawaan modal
+      setTimeout(() => {
+        renderOrders(statusFilter);
+      }, 50); 
+    }
+
+    // 2. Update renderOrders lu jadi begini (biar bisa nge-filter Supabase)
+    async function renderOrders(filterStatus = 'Semua') {
       const wrap = document.getElementById("orderListArea");
-      if(orders.length === 0) {
-        wrap.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--muted);">Belum ada pesanan.</div>`;
+      if (!wrap) return;
+
+      wrap.innerHTML = `<p style="text-align: center; color: var(--muted); padding: 20px;">Memuat riwayat pesanan...</p>`;
+
+      const userEmail = user?.email;
+      let query = supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+
+      if (userEmail && userEmail !== "-") {
+        query = query.eq('customer_email', userEmail);
+      }
+
+      // FITUR BARU: Menyaring data sesuai ikon yang ditekan
+      if (filterStatus !== 'Semua') {
+        query = query.eq('status', filterStatus);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Gagal ambil data:", error);
+        wrap.innerHTML = `<p style="text-align: center; color: red; padding: 20px;">Gagal memuat riwayat pesanan.</p>`;
         return;
       }
-      wrap.innerHTML = orders.map(o => `
-        <div class="order-card">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <b style="font-size:13px;">${o.id}</b>
-            <span class="order-status">${o.status}</span>
+
+      // Tampilan animasi kosong jika belum ada pesanan di kategori tersebut
+      if (!data || data.length === 0) {
+        wrap.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 50px; margin-bottom: 10px;">📋</div>
+            <p style="color: var(--muted); font-size: 14px; font-weight: bold;">Belum ada pesanan.</p>
           </div>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">${o.date} • ${o.payment}</div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight:bold; font-size:14px;">Total: ${rupiah(o.total)}</div>
-            <button class="btn btn-outline" style="width:auto; padding:6px 12px; font-size:11px;" onclick="openTracking('${o.id}')">Lacak</button>
+        `;
+        return;
+      }
+
+      // Tampilkan list card pesanan
+      wrap.innerHTML = data.map(o => {
+        const dateStr = new Date(o.created_at).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' });
+        const itemsSummary = (o.cart_items || []).map(i => `${i.qty}x ${i.name || 'Produk'}`).join(', ');
+
+        return `
+          <div class="order-card" style="background: #fff; margin: 10px 20px; border-radius: 12px; padding: 15px; box-shadow: var(--shadow);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-size: 12px; color: var(--muted);">ID: #${o.id} (${dateStr})</span>
+              <span class="order-status" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: #e8f5e9; color: #2e7d32; font-weight: bold;">${o.status}</span>
+            </div>
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px; color: var(--text-dark);">
+              ${itemsSummary}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 8px;">
+              <span style="font-size: 13px; color: var(--muted);">Total: <b>Rp ${Number(o.total_price).toLocaleString('id-ID')}</b></span>
+              <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="showToast('Status: ${o.status}')">Detail</button>
+            </div>
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join('');
     }
 
     function openTracking(id) {
