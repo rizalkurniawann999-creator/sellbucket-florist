@@ -257,35 +257,52 @@
   </div>
 
   <!-- DASHBOARD PESANAN SAYA -->
-  <div style="background: #fff; margin: 15px 20px; padding: 15px 20px; border-radius: 12px; box-shadow: var(--shadow);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <h3 style="font-size: 15px; margin: 0; color: #333;">Pesanan Saya</h3>
-      <span style="font-size: 12px; color: var(--muted); cursor: pointer;" onclick="bukaPesanan('Semua')">Lihat Riwayat Pesanan ></span>
-    </div>
-    <div style="display: flex; justify-content: space-between; text-align: center;">
-      <!-- Ikon Belum Bayar -->
-      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Menunggu Pembayaran')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"></path><path d="M21 12H10v4h11v-4z"></path></svg>
-        <div style="font-size: 11px; color: #555; margin-top: 5px;">Belum Bayar</div>
+    <div style="background: #fff; margin: 15px 20px; padding: 15px 20px; border-radius: 12px; box-shadow: var(--shadow);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="font-size: 15px; margin: 0; color: #333;">Pesanan Saya</h3>
+        <span style="font-size: 12px; color: var(--muted); cursor: pointer;" onclick="bukaPesanan('Semua')">Lihat Riwayat Pesanan ></span>
       </div>
-      <!-- Ikon Dikemas -->
-      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Diproses')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikemas</div>
-      </div>
-      <!-- Ikon Dikirim -->
-      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Dikirim')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikirim</div>
-      </div>
-      <!-- Ikon Selesai -->
-      <div style="cursor: pointer; flex: 1;" onclick="bukaPesanan('Selesai')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <div style="font-size: 11px; color: #555; margin-top: 5px;">Selesai</div>
-      </div>
-    </div>
-  </div>
+      
+      <div style="display: flex; justify-content: space-between; text-align: center;">
+        
+        <!-- Ikon Belum Bayar -->
+        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Menunggu Pembayaran')">
+          <div style="position: relative; display: inline-block;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"></path><path d="M21 12H10v4h11v-4z"></path></svg>
+            <span id="badge-bayar" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          </div>
+          <div style="font-size: 11px; color: #555; margin-top: 5px;">Belum Bayar</div>
+        </div>
 
+        <!-- Ikon Dikemas -->
+        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Diproses')">
+          <div style="position: relative; display: inline-block;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <span id="badge-kemas" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          </div>
+          <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikemas</div>
+        </div>
+
+        <!-- Ikon Dikirim -->
+        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Dikirim')">
+          <div style="position: relative; display: inline-block;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <span id="badge-kirim" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          </div>
+          <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikirim</div>
+        </div>
+
+        <!-- Ikon Selesai -->
+        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Selesai')">
+          <div style="position: relative; display: inline-block;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span id="badge-selesai" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          </div>
+          <div style="font-size: 11px; color: #555; margin-top: 5px;">Selesai</div>
+        </div>
+        
+      </div>
+    </div>
   <div class="menu-list">
             <div class="menu-list-item" onclick="openModal('voucherModal')"><span>🎟️ Voucher Saya</span> <span>›</span></div>
             <div class="menu-list-item" onclick="openModal('profileEditModal')"><span>⚙️ Pengaturan Akun</span> <span>›</span></div>
