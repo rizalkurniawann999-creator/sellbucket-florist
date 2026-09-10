@@ -570,39 +570,60 @@
     }
 
     async function processCheckout() {
-      const pay = document.getElementById("coPayment").value;
-      const note = document.getElementById("coNote").value;
-      const sub = cart.reduce((s, x) => s + (PRODUCTS.find(p => p.id === x.id)?.price * x.qty), 0);
-      const total = (sub + 15000) - activeVoucher.amount;
+      try {
+        const pay = document.getElementById("coPayment").value;
+        const note = document.getElementById("coNote").value;
+        
+        // Ambil nomor HP otomatis dari data profil/alamat user yang sudah tersimpan
+        // (Biasanya tersimpan di variabel user, contoh: user.phone atau user.whatsapp)
+        const phone = (typeof user !== 'undefined' && user && (user.phone || user.whatsapp)) ? (user.phone || user.whatsapp) : "-";
 
-      const orderData = {
-        customer_name: user?.name || "Pelanggan",
-        customer_email: user?.email || "-",
-        cart_items: cart,
-        total_price: total > 0 ? total : 0,
-        status: pay === "COD" ? "Diproses" : "Menunggu Pembayaran"
-      };
+        if (!cart || cart.length === 0) {
+          showToast("Keranjang belanjaan masih kosong!");
+          return;
+        }
 
-      // 👇 KIRIM DATA PESANAN KE SUPABASE DISINI
-      const { error } = await supabaseClient.from('orders').insert([orderData]);
-      if (error) {
-        console.error("Gagal simpan pesanan:", error);
-        showToast("Gagal memproses pesanan!");
-        return;
+        const sub = cart.reduce((s, x) => s + (PRODUCTS.find(p => p.id === x.id)?.price * x.qty), 0);
+        const voucherAmount = (typeof activeVoucher !== 'undefined' && activeVoucher && activeVoucher.amount) ? activeVoucher.amount : 0;
+        const total = (sub + 15000) - voucherAmount;
+
+        // Masukkan nomor telepon ke dalam data order untuk dikirim ke Supabase
+        const orderData = {
+          customer_name: user?.name || "Pelanggan",
+          customer_email: user?.email || "-",
+          customer_phone: phone, // 👈 Otomatis masuk dari data alamat/profil
+          cart_items: cart,
+          total_price: total > 0 ? total : 0,
+          status: pay === "COD" ? "Diproses" : "Menunggu Pembayaran"
+        };
+
+        showToast("Memproses pesanan...");
+
+        const { error } = await supabaseClient.from('orders').insert([orderData]);
+        if (error) {
+          console.error("Gagal simpan pesanan:", error);
+          showToast("Gagal: " + error.message);
+          return;
+        }
+
+        showToast("Pesanan Berhasil Dibuat! 🎉");
+
+        // Kosongkan keranjang
+        cart = [];
+        if (typeof saveLocal === 'function') saveLocal();
+        if (typeof updateCartBadge === 'function') updateCartBadge();
+
+        // Pindah halaman ke profil/riwayat pesanan
+        setTimeout(() => {
+          if (typeof switchScreen === 'function') switchScreen('profile');
+          if (typeof openModal === 'function') openModal('orderModal');
+        }, 800);
+
+      } catch (err) {
+        console.error("Error checkout:", err);
+        showToast("Terjadi kesalahan sistem!");
       }
-
-      // Kode asli web lu untuk nyimpen ke local/state selanjutnya...
-      const order = {
-        id: "Inv-" + Math.floor(Math.random() * 900000 + 100000),
-        date: new Date().toLocaleString("id-ID"),
-        items: JSON.parse(JSON.stringify(cart)),
-        total: total > 0 ? total : 0,
-        payment: pay, note, status: pay === "COD" ? "Diproses" : "Menunggu Pembayaran"
-      };
-      
-      // (lanjutan kode asli lu di bawahnya biarkan seperti semula)
     }
-
     function renderOrders() {
       const wrap = document.getElementById("orderListArea");
       if(orders.length === 0) {
