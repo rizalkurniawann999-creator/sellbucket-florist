@@ -253,8 +253,9 @@
     <div>
       <h3 id="profileName">User Name</h3>
       <p style="font-size:12px; color:var(--muted);" id="profileEmail">user@gmail.com</p>
-      <div id="admin-menu-container" style="display: none; margin-top: 15px;">
-      <button onclick="switchScreen('admin')" style="width: 100%; background: #d9534f; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
+     <!-- TOMBOL MENU ADMIN DENGAN SECRET KEY -->
+    <div style="margin-top: 15px;">
+      <button onclick="bukaAdmin()" style="width: 100%; background: #d9534f; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">
         👑 Masuk Halaman Admin / Owner
       </button>
     </div>
@@ -838,9 +839,9 @@
         saveLocal(); showApp();
       } else if (user) {
         showApp();
-       checkAdminAccess(); 
       }
     })();
+    
     // 👇 PASTE FUNGSI INI DI SINI (DI ATAS BOOTAPP)
     async function updateOrderBadges() {
       const userEmail = user?.email;
@@ -876,23 +877,29 @@
     }
 
     // (Kode bootApp() lu yang asli tetap di bawahnya)
-    (async function bootApp() {
+    (async function bootApp() updateOrderBadges() {
       await fetchProducts(); 
       // ... sisa kode aslimu ...
     })();
 
-    // Ganti dengan email akun admin/owner lu!
-    const ADMIN_EMAIL = "anakaumi78@gmail.com"; 
+    // Ganti "kunci123" dengan password rahasia pilihan lu sendiri!
+    const ADMIN_SECRET_KEY = "logadminsellbucket.092307"; 
 
-    async function checkAdminAccess() {
-      const adminContainer = document.getElementById('admin-menu-container');
-      if (!adminContainer) return;
+    function bukaAdmin() {
+      // Munculkan kotak input password di layar
+      const inputKey = prompt("Masukkan Secret Key Admin");
 
-      if (user?.email === ADMIN_EMAIL) {
-        adminContainer.style.display = 'block'; // Tampilkan tombol admin jika email cocok
+      // Kalau dibatalkan, hentikan
+      if (inputKey === null) return;
+
+      // Cek apakah key-nya bener
+      if (inputKey === ADMIN_SECRET_KEY) {
+        alert("Akses diterima, wellcome back my Boss! 👑");
+        switchScreen('admin'); // Langsung buka halaman admin
       } else {
-        adminContainer.style.display = 'none';
+        alert("❌ Secret Key salah! Lu bukan owner nih wkwk.");
       }
+    }
     }
 
     async function loadAdminOrders() {
