@@ -822,6 +822,48 @@
         showApp();
       }
     })();
+    // 👇 PASTE FUNGSI INI DI SINI (DI ATAS BOOTAPP)
+    async function updateOrderBadges() {
+      const userEmail = user?.email;
+      if (!userEmail || userEmail === "-") return;
+
+      const { data, error } = await supabaseClient
+        .from('orders')
+        .select('status')
+        .eq('customer_email', userEmail);
+
+      if (error || !data) return;
+
+      let countBayar = data.filter(o => o.status === 'Menunggu Pembayaran').length;
+      let countKemas = data.filter(o => o.status === 'Diproses').length;
+      let countKirim = data.filter(o => o.status === 'Dikirim').length;
+      let countSelesai = data.filter(o => o.status === 'Selesai').length;
+
+      function setBadge(elementId, count) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        if (count > 0) {
+          el.innerText = count;
+          el.style.display = 'inline-block';
+        } else {
+          el.style.display = 'none';
+        }
+      }
+
+      setBadge('badge-bayar', countBayar);
+      setBadge('badge-kemas', countKemas);
+      setBadge('badge-kirim', countKirim);
+      setBadge('badge-selesai', countSelesai);
+    }
+
+    // (Kode bootApp() lu yang asli tetap di bawahnya)
+    (async function bootApp() {
+      await fetchProducts(); 
+      // ... sisa kode aslimu ...
+    })();
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
