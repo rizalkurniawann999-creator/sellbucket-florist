@@ -388,9 +388,10 @@
       const { data, error } = await supabaseClient.from('products').select('*');
       if(error) {
         console.error("Gagal ambil produk:", error);
-        showToast("Gagal memuat produk dari database");
+        // INI BIKIN PESAN ERROR ASLINYA MUNCUL DI LAYAR HP
+        showToast("Error Supabase: " + error.message);
       } else {
-        // Mapping data dari database agar sinkron dengan template web
+        console.log("Data berhasil dimuat:", data);
         PRODUCTS = (data || []).map(p => ({
           id: p.id,
           name: p.name,
@@ -399,7 +400,7 @@
           tag: p.tag,
           desc: p.description
         }));
-        initApp(); // Jalankan render aplikasi setelah produk siap
+        initApp(); 
       }
     }
     let cart = JSON.parse(localStorage.getItem("sb_cart_app") || "[]");
