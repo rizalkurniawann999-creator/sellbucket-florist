@@ -253,6 +253,11 @@
     <div>
       <h3 id="profileName">User Name</h3>
       <p style="font-size:12px; color:var(--muted);" id="profileEmail">user@gmail.com</p>
+      <div id="admin-menu-container" style="display: none; margin-top: 15px;">
+      <button onclick="switchScreen('admin')" style="width: 100%; background: #d9534f; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
+        👑 Masuk Halaman Admin / Owner
+      </button>
+    </div>
     </div>
   </div>
 
@@ -319,6 +324,18 @@
         <div class="nav-item" onclick="switchScreen('catalog')" id="nav-catalog"><div class="nav-icon">🛍️</div><span>Katalog</span></div>
         <div class="nav-item" onclick="switchScreen('cart')" id="nav-cart"><div class="nav-icon" style="position:relative;">🛒<span class="badge" id="navCartBadge">0</span></div><span>Keranjang</span></div>
         <div class="nav-item" onclick="switchScreen('profile')" id="nav-profile"><div class="nav-icon">👤</div><span>Profil</span></div>
+      </div>
+    </div>
+
+    <!-- LAYAR ADMIN / OWNER -->
+    <div id="screen-admin" class="screen" style="padding: 20px; padding-bottom: 80px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Panel Admin (Semua Pesanan)</h2>
+        <button onclick="switchScreen('profile')" style="padding: 6px 12px; background: #ccc; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Kembali</button>
+      </div>
+
+      <div id="admin-orders-list">
+        <p style="text-align: center; color: #666;">Memuat data pesanan...</p>
       </div>
     </div>
 
