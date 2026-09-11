@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SellBucket Florist - Professional Marketplace</title>
-  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -58,8 +57,7 @@
     .divider span { background: #191d26; padding: 0 10px; font-size: 12px; color: var(--text-muted); position: relative; }
 
     .auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
-    .auth-switch a { color: var(--text-main); text-decoration: none; font-weight: 600; }
-    .auth-switch a:hover { text-decoration: underline; }
+    .auth-switch span { color: var(--text-main); text-decoration: underline; font-weight: 600; cursor: pointer; }
 
     /* Full-Screen Marketplace Layout */
     .marketplace-nav { background: rgba(15,17,21,0.9); border-bottom: 1px solid var(--border-color); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
@@ -111,7 +109,6 @@
 </head>
 <body>
 
-  <!-- ================= 1. REGISTER SCREEN ================= -->
   <div id="register-screen" class="app-screen active">
     <div class="auth-wrapper">
       <div class="auth-card">
@@ -142,12 +139,11 @@
           <input type="password" id="reg-repass" placeholder="Ulangi password anda">
         </div>
         <button type="button" class="btn-main" onclick="handleRegister()">Daftar Akun</button>
-        <div class="auth-switch">Sudah punya akun? <a href="#" onclick="switchScreen('login')">Masuk</a></div>
+        <div class="auth-switch">Sudah punya akun? <span onclick="switchScreen('login')">Masuk</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ================= 2. OTP SCREEN ================= -->
   <div id="otp-screen" class="app-screen">
     <div class="auth-wrapper">
       <div class="auth-card">
@@ -165,7 +161,6 @@
     </div>
   </div>
 
-  <!-- ================= 3. LOGIN SCREEN ================= -->
   <div id="login-screen" class="app-screen">
     <div class="auth-wrapper">
       <div class="auth-card">
@@ -190,18 +185,16 @@
         
         <div class="divider"><span>ATAU</span></div>
 
-        <!-- TOMBOL LOGIN GOOGLE -->
         <button type="button" class="btn-google" onclick="handleGoogleLogin()">
           <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.18 21.32 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.18 2.68 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
           Masuk dengan Google
         </button>
 
-        <div class="auth-switch">Belum punya akun? <a href="#" onclick="switchScreen('register')">Daftar Sekarang</a></div>
+        <div class="auth-switch">Belum punya akun? <span onclick="switchScreen('register')">Daftar Sekarang</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ================= 4. MAIN MARKETPLACE DASHBOARD (USER) ================= -->
   <div id="marketplace-screen" class="app-screen">
     <header class="marketplace-nav">
       <div class="nav-brand">
@@ -219,7 +212,6 @@
     </header>
 
     <div class="main-content">
-      <!-- Status Pesanan Ala Shopee -->
       <div class="order-status-card">
         <h3 style="font-size: 16px; font-weight: 600;">Pesanan Saya</h3>
         <div class="order-status-grid">
@@ -246,15 +238,12 @@
         </div>
       </div>
 
-      <!-- Katalog Produk -->
       <h2 class="section-title">Katalog Buket Terlaris</h2>
       <div id="product-container" class="product-grid">
-        <!-- Render dinamis via JS -->
-      </div>
+        </div>
     </div>
   </div>
 
-  <!-- ================= 5. ADMIN PANEL ================= -->
   <div id="admin-screen" class="app-screen">
     <div class="admin-container">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
@@ -268,15 +257,12 @@
         <button class="tab-btn" onclick="switchAdminTab('vouchers')">Kelola Voucher</button>
       </div>
 
-      <!-- Tab 1: Orders -->
       <div id="admin-orders" class="admin-section active">
         <p style="color: var(--text-muted); font-size: 14px;">Daftar pesanan masuk dari database Supabase:</p>
         <div id="admin-order-list" style="margin-top: 16px;">
-          <!-- Render daftar pesanan admin dari database -->
-        </div>
+          </div>
       </div>
 
-      <!-- Tab 2: Products -->
       <div id="admin-products" class="admin-section">
         <div class="form-group">
           <label>Nama Buket</label>
@@ -293,7 +279,6 @@
         <button class="btn-main" onclick="addNewProduct()">Simpan Produk Baru</button>
       </div>
 
-      <!-- Tab 3: Vouchers -->
       <div id="admin-vouchers" class="admin-section">
         <div class="form-group">
           <label>Kode Voucher</label>
@@ -308,7 +293,6 @@
     </div>
   </div>
 
-  <!-- ================= 2FA CAMERA MODAL ================= -->
   <div id="cam-modal">
     <div class="cam-box">
       <h3>Verifikasi Wajah Admin (2FA)</h3>
@@ -318,7 +302,6 @@
     </div>
   </div>
 
-  <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
     // Konfigurasi Supabase Project Lu
     const SUPABASE_URL = 'https://wjdtyopmfthrawsgudca.supabase.co';
@@ -373,8 +356,7 @@
         const { error } = await supabaseClient.auth.verifyOtp({ email: tempEmail, token, type: 'signup' });
         if (error) throw error;
         alert("Verifikasi berhasil! Silakan masuk.");
-      
-switchScreen('login');
+        switchScreen('login');
       } catch (err) {
         alertBox.style.display = "block"; alertBox.innerText = "Kode OTP salah/kedaluwarsa!";
       }
@@ -426,7 +408,7 @@ switchScreen('login');
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         document.getElementById('webcam').srcObject = stream;
-        } catch (e) {
+      } catch (e) {
         alert("Kamera tidak dapat diakses, tapi Anda tetap bisa lanjut ke panel.");
       }
     }
@@ -485,7 +467,7 @@ switchScreen('login');
         cart_items: [{ name: productName, price: productPrice, qty: 1 }],
         total_price: productPrice,
         status: 'Diproses'
-      };
+        };
 
       try {
         const { error } = await supabaseClient.from('orders').insert([orderPayload]);
@@ -514,7 +496,7 @@ switchScreen('login');
           else if (order.status === 'Dikemas') dikemas++;
           else if (order.status === 'Dikirim') dikirim++;
           else if (order.status === 'Selesai') selesai++;
-          });
+        });
 
         updateBadge('badge-proses', proses);
         updateBadge('badge-dikemas', dikemas);
@@ -564,7 +546,8 @@ switchScreen('login');
         }).join('');
       } catch (err) {
         console.error("Gagal memuat pesanan admin:", err.message);
-      
+      }
+    }
 
     async function updateOrderStatus(orderId, newStatus) {
       try {
@@ -574,7 +557,7 @@ switchScreen('login');
         loadAdminOrders();
       } catch (err) {
         alert("Gagal update status: " + err.message);
-        }
+      }
     }
 
     function switchAdminTab(tabName) {
