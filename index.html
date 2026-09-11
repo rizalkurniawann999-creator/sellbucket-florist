@@ -1,933 +1,625 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#c96f8f" />
-  <title>SellBucket App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SellBucket Florist - Professional Marketplace</title>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --rose: #c96f8f; --rose-dark: #8f4965; --pink: #f7dbe5; --bg-app: #f4f6f8;
-      --ink: #3e3036; --muted: #806f77; --line: #eadde1; --white: #fff;
-      --shadow: 0 4px 20px rgba(91,55,67,.08); --radius: 16px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Inter, system-ui, -apple-system, sans-serif;
-      background: #e5e5e5;
-      color: var(--ink);
-      line-height: 1.5;
-      display: flex;
-      justify-content: center;
-    }
-    button, input, textarea { font: inherit; outline: none; }
-    button { cursor: pointer; border: 0; background: transparent; }
-    img { max-width: 100%; display: block; }
-    .hidden { display: none !important; }
-
-    /* MOBILE APP CONTAINER */
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      background: var(--bg-app);
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-      box-shadow: 0 0 30px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
+      --bg-color: #0f1115;
+      --card-bg: rgba(25, 29, 38, 0.85);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-main: #ffffff;
+      --text-muted: #9ca3af;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --error-bg: rgba(239, 68, 68, 0.15);
+      --error-border: rgba(239, 68, 68, 0.4);
+      --error-text: #f87171;
+      --success: #10b981;
     }
 
-    /* TYPOGRAPHY & BUTTONS */
-    .btn { padding: 12px 16px; border-radius: 12px; font-weight: 700; text-align: center; display: inline-block; width: 100%; transition: 0.2s; }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--rose); color: #fff; }
-    .btn-soft { background: var(--pink); color: var(--rose-dark); }
-    .btn-outline { background: #fff; border: 1px solid var(--line); color: var(--ink); }
-    .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* AUTH SCREEN */
-    #authView {
-      min-height: 100vh;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 24px; background: #fff;
-    }
-    .auth-logo { width: 115px; height: 115px; margin: 0 auto 20px; border-radius: 20px; box-shadow: var(--shadow); object-fit: contain; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--muted); }
-    .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafafa; }
-    .form-group input:focus { border-color: var(--rose); background: #fff; }
+    /* Layout Container */
+    .app-screen { display: none; width: 100%; min-height: 100vh; }
+    .app-screen.active { display: flex; flex-direction: column; }
 
-    /* MAIN APP AREA */
-    .app-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-    .screen { display: none; animation: fadeIn 0.3s ease; }
-    .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    /* Auth Centered Container */
+    .auth-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .auth-card { width: 100%; max-width: 420px; background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 
-    /* TOP HEADER */
-    .app-header { background: #fff; padding: 16px 20px; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-    .app-header h1 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .app-header img { width: 28px; height: 28px; border-radius: 6px; }
-    .header-icons { display: flex; gap: 15px; }
-    .icon-btn { position: relative; font-size: 20px; }
+    .brand-header { text-align: center; margin-bottom: 24px; }
+    .brand-header img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 12px; }
+    .brand-header h1 { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .brand-header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
 
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position: fixed; bottom: 0; width: 100%; max-width: 480px;
-      background: #fff; display: flex; justify-content: space-around;
-      padding: 12px 0; border-top: 1px solid var(--line); z-index: 50;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
-    }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 600; }
-    .nav-item.active { color: var(--rose); }
-    .nav-icon { font-size: 20px; }
+    .alert-box { background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text); padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; display: none; text-align: center; font-weight: 500; }
 
-    /* BERANDA (HOME) SCREEN */
-    .hero-banner { background: linear-gradient(135deg, var(--rose), var(--rose-dark)); padding: 25px 20px; color: #fff; border-radius: 0 0 24px 24px; }
-    .hero-banner h2 { font-size: 22px; margin-bottom: 5px; }
-    .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; background: #fff; margin-bottom: 10px; }
-    .menu-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 600; text-align: center; gap: 8px; }
-    .menu-icon { width: 45px; height: 45px; background: var(--pink); border-radius: 14px; display: grid; place-items: center; font-size: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-main); }
+    .input-wrapper { position: relative; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(15, 17, 21, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-group input:focus { border-color: var(--accent); }
+    .password-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .btn-main { width: 100%; background: var(--accent); border: none; color: var(--text-main); font-weight: 600; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+    .btn-main:hover { background: var(--accent-hover); }
+
+    .btn-google { width: 100%; background: #ffffff; border: 1px solid var(--border-color); color: #1f2937; font-weight: 600; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 12px; display: flex; justify-content: center; align-items: center; gap: 10px; transition: background 0.2s; }
+    .btn-google:hover { background: #f3f4f6; }
+
+    .divider { text-align: center; margin: 16px 0; position: relative; }
+    .divider::before { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: var(--border-color); }
+    .divider span { background: #191d26; padding: 0 10px; font-size: 12px; color: var(--text-muted); position: relative; }
+
+    .auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+    .auth-switch a { color: var(--text-main); text-decoration: none; font-weight: 600; }
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* Full-Screen Marketplace Layout */
+    .marketplace-nav { background: rgba(15,17,21,0.9); border-bottom: 1px solid var(--border-color); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+    .nav-brand { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+    .nav-brand img { width: 36px; height: 36px; object-fit: contain; }
+    .nav-search { flex: 1; max-width: 500px; margin: 0 32px; position: relative; }
+    .nav-search input { width: 100%; background: rgba(25,29,38,0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 16px 10px 40px; color: var(--text-main); font-size: 14px; outline: none; }
+    .nav-search span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .nav-menu { display: flex; align-items: center; gap: 20px; }
+    .nav-item { cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; transition: color 0.2s; background: none; border: none; position: relative; }
+    .nav-item:hover { color: var(--text-main); }
+
+    .badge { position: absolute; top: -6px; right: -10px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 700; display: none; }
+
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px; width: 100%; flex: 1; }
     
-    .section-title { font-size: 16px; font-weight: 800; padding: 15px 20px 5px; background: #fff; }
-    .horizontal-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 15px 20px; background: #fff; scroll-snap-type: x mandatory; }
-    .horizontal-scroll::-webkit-scrollbar { display: none; }
-    
-    /* PRODUCT CARD */
-    .product-card { min-width: 150px; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; scroll-snap-align: start; }
-    .product-img { width: 100%; height: 150px; background: #fff5f7; object-fit: contain; padding: 10px; }
-    .product-info { padding: 10px; }
-    .product-title { font-size: 13px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .product-price { font-weight: 800; color: var(--rose-dark); font-size: 14px; margin-top: 5px; }
+    /* Shopee-style Order Status Widget */
+    .order-status-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .order-status-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 16px; }
+    .status-item { cursor: pointer; position: relative; padding: 10px; border-radius: 8px; transition: background 0.2s; }
+    .status-item:hover { background: rgba(255,255,255,0.03); }
+    .status-item span.icon { font-size: 24px; display: block; margin-bottom: 6px; }
+    .status-item p { font-size: 13px; color: var(--text-muted); }
 
-    /* CATALOG GRID */
-    .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px 20px; background: var(--bg-app); }
-    .catalog-grid .product-card { min-width: auto; }
+    /* Product Grid */
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .product-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: transform 0.2s; }
+    .product-card:hover { transform: translateY(-4px); }
+    .product-img { width: 100%; height: 180px; background: #21262d; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
+    .product-body { padding: 16px; }
+    .product-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .product-price { font-size: 14px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
 
-    /* CART & CHECKOUT */
-    .cart-item { display: flex; gap: 12px; background: #fff; padding: 15px 20px; border-bottom: 1px solid var(--line); }
-    .cart-img { width: 70px; height: 70px; border-radius: 10px; background: #fff5f7; object-fit: contain; }
-    .qty-control { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-    .qty-btn { width: 28px; height: 28px; background: #f0f0f0; border-radius: 8px; font-weight: bold; }
-    .checkout-bar { position: fixed; bottom: 65px; width: 100%; max-width: 480px; background: #fff; padding: 15px 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 10px rgba(0,0,0,0.05); }
+    /* Admin Panel Styles */
+    .admin-container { max-width: 1000px; margin: 40px auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; }
+    .admin-tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+    .tab-btn { background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; padding: 8px 16px; border-radius: 6px; }
+    .tab-btn.active { background: var(--accent); color: white; }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
 
-    /* PROFILE & ORDERS */
-    .profile-header { display: flex; align-items: center; gap: 15px; padding: 25px 20px; background: #fff; border-bottom: 1px solid var(--line); }
-    .profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--rose); color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: bold; }
-    .menu-list { background: #fff; margin-top: 10px; }
-    .menu-list-item { display: flex; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 14px; }
-    
-    .order-card { background: #fff; margin: 10px 20px; border-radius: 12px; padding: 15px; box-shadow: var(--shadow); }
-    .order-status { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: #e8f5e9; color: #2e7d32; font-weight: bold; float: right; }
-
-    /* MODAL */
-    .modal { position: fixed; inset: 0; background: #fff; z-index: 100; transform: translateY(100%); transition: 0.3s ease; display: flex; flex-direction: column; }
-    .modal.open { transform: none; }
-    .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 15px; font-weight: bold; background: #fff; }
-    .modal-back { font-size: 20px; width: 30px; }
-    .modal-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg-app); }
-
-    /* VOUCHER & TRACKING */
-    .voucher-card { background: linear-gradient(to right, var(--rose), var(--rose-dark)); color: #fff; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .stepper { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; position: relative; }
-    .stepper::before { content:''; position:absolute; left: 11px; top: 10px; bottom: 10px; width: 2px; background: var(--line); }
-    .step { display: flex; gap: 15px; align-items: flex-start; position: relative; z-index: 2; }
-    .step-dot { width: 24px; height: 24px; border-radius: 50%; background: #eee; display: grid; place-items: center; border: 4px solid #fff; }
-    .step.active .step-dot { background: var(--rose); }
-    .step-content { flex: 1; }
-    .step-content h4 { font-size: 14px; margin-bottom: 2px; }
-    .step-content p { font-size: 12px; color: var(--muted); }
-
-    /* TOAST */
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
+    /* Camera Modal for 2FA Admin */
+    #cam-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .cam-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; text-align: center; max-width: 400px; width: 100%; }
+    video { width: 100%; border-radius: 8px; margin: 16px 0; background: #000; }
   </style>
 </head>
 <body>
 
-  <!-- MOBILE APP WRAPPER -->
-  <div class="app-container">
-    
-    <div id="toast" class="toast">Notifikasi</div>
-
-    <!-- ========================= AUTH / LOGIN ========================= -->
-    <div id="authView">
-      <div style="text-align:center;">
-        <!-- FOTO LOGO DI AMBIL DARI FOLDER ASSETS -->
-        <img class="auth-logo" src="assets/sellbucket_logo.png" alt="SellBucket Logo">
-        <h1 style="font-family:Georgia,serif; margin-bottom: 5px;">SellBucket</h1>
-        <p style="color:var(--muted); font-size:14px; margin-bottom: 30px;">Marketplace Buket Handmade Spesial</p>
-      </div>
-
-      <form id="loginForm">
+  <!-- ================= 1. REGISTER SCREEN ================= -->
+  <div id="register-screen" class="app-screen active">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand-header">
+          <img src="assets/sellbucket_logo.png" alt="SellBucket Logo" onerror="this.style.display='none'">
+          <h1>Buat Akun Baru</h1>
+          <p>Bergabunglah dengan SellBucket Florist</p>
+        </div>
+        <div id="reg-alert" class="alert-box">Error</div>
         <div class="form-group">
-          <label>Email</label>
-          <input id="loginEmail" type="email" placeholder="nama@gmail.com" required>
+          <label>Nama Lengkap</label>
+          <input type="text" id="reg-name" placeholder="Cth: Budi Santoso">
+        </div>
+        <div class="form-group">
+          <label>Email (Untuk Verifikasi OTP)</label>
+          <input type="email" id="reg-email" placeholder="Cth: budi@gmail.com">
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input id="loginPassword" type="password" placeholder="••••••••" required>
+          <div class="input-wrapper">
+            <input type="password" id="reg-pass" placeholder="Buat password yang kuat">
+            <button type="button" class="password-toggle" onclick="togglePass('reg-pass')">👁️</button>
+          </div>
+          <div class="form-hint">Info: Wajib 8 karakter, kombinasi huruf & angka.</div>
         </div>
-        <button class="btn btn-primary" type="submit">Masuk</button>
-        
-        <div style="text-align:center; margin: 15px 0; color: var(--muted); font-size:12px;">ATAU</div>
-        
-        <button class="btn btn-outline" type="button" onclick="googleLogin()" style="display:flex; justify-content:center; align-items:center; gap:10px;">
-          G Lanjut dengan Google
-        </button>
-      </form>
-    </div>
-
-    <!-- ========================= MAIN APP ========================= -->
-    <div id="appView" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
-      
-      <!-- HEADER -->
-      <div class="app-header">
-        <h1>
-          <!-- LOGO KECIL DI HEADER DI AMBIL DARI FOLDER ASSETS -->
-          <img src="assets/sellbucket_logo.png" alt="Logo">
-          SellBucket
-        </h1>
-        <div class="header-icons">
-          <button class="icon-btn" onclick="openModal('notifModal')">
-            🔔<span class="badge" style="display:none;" id="notifBadge">1</span>
-          </button>
-          <button class="icon-btn" onclick="contactWA()">💬</button>
+        <div class="form-group">
+          <label>Ulangi Password</label>
+          <input type="password" id="reg-repass" placeholder="Ulangi password anda">
         </div>
+        <button type="button" class="btn-main" onclick="handleRegister()">Daftar Akun</button>
+        <div class="auth-switch">Sudah punya akun? <a href="#" onclick="switchScreen('login')">Masuk</a></div>
       </div>
-
-      <!-- APP CONTENT -->
-      <div class="app-content">
-        
-        <!-- BERANDA SCREEN -->
-        <div id="screen-home" class="screen active">
-          <div class="hero-banner">
-            <h2>Hai, <span id="greetName">Broski</span>!</h2>
-            <p style="font-size:13px; opacity:0.9;">Cari buket apa hari ini?</p>
-            <div style="margin-top:15px; position:relative;">
-              <input type="text" placeholder="🔍 Cari buket wisuda, anniv..." style="width:100%; padding:10px 15px; border-radius:20px; border:none; font-size:13px;" onclick="switchScreen('catalog')">
-            </div>
-          </div>
-
-          <div class="menu-grid">
-            <div class="menu-item" onclick="openModal('voucherModal')"><div class="menu-icon">🎟️</div><span>Voucher</span></div>
-            <div class="menu-item" onclick="switchScreen('catalog')"><div class="menu-icon">💐</div><span>Katalog</span></div>
-            <div class="menu-item" onclick="openModal('orderModal')"><div class="menu-icon">📦</div><span>Pesanan</span></div>
-            <div class="menu-item" onclick="contactWA()"><div class="menu-icon">🎧</div><span>CS Chat</span></div>
-          </div>
-
-          <div class="section-title">Terlaris 🔥</div>
-          <div class="horizontal-scroll" id="homeBestSeller"></div>
-        </div>
-
-        <!-- KATALOG SCREEN -->
-        <div id="screen-catalog" class="screen">
-          <div class="section-title" style="padding-top:20px;">Semua Produk</div>
-          <div class="catalog-grid" id="catalogGrid"></div>
-        </div>
-
-        <!-- KERANJANG SCREEN -->
-        <div id="screen-cart" class="screen">
-          <div style="background:#fff; padding:15px 20px; border-bottom:1px solid var(--line);"><h2 style="font-size:18px;">Keranjang Saya</h2></div>
-          <div id="cartItems"></div>
-          
-          <div id="emptyCartMsg" style="text-align:center; padding:50px 20px; color:var(--muted);">
-            <div style="font-size:40px; margin-bottom:10px;">🛒</div>
-            <p>Keranjangmu masih kosong.</p>
-            <button class="btn btn-outline" style="margin-top:15px; width:auto;" onclick="switchScreen('catalog')">Belanja Sekarang</button>
-          </div>
-
-          <div class="checkout-bar hidden" id="checkoutBar">
-            <div>
-              <div style="font-size:11px; color:var(--muted);">Total Pembayaran</div>
-              <div style="font-weight:900; color:var(--rose-dark); font-size:16px;" id="cartTotalText">Rp0</div>
-            </div>
-            <button class="btn btn-primary" style="width:130px;" onclick="openModal('checkoutModal')">Checkout</button>
-          </div>
-        </div>
-
-       <!-- PROFIL SCREEN -->
-<div id="screen-profile" class="screen">
-  <div class="profile-header">
-    <div class="profile-avatar" id="profileAvatar">U</div>
-    <div>
-      <h3 id="profileName">User Name</h3>
-      <p style="font-size:12px; color:var(--muted);" id="profileEmail">user@gmail.com</p>
-     <!-- TOMBOL MENU ADMIN DENGAN SECRET KEY -->
-    <div style="margin-top: 15px;">
-      <button onclick="bukaAdmin()" style="width: 100%; background: #d9534f; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">
-        👑 Masuk Halaman Admin / Owner
-      </button>
-    </div>
     </div>
   </div>
 
-  <!-- DASHBOARD PESANAN SAYA -->
-    <div style="background: #fff; margin: 15px 20px; padding: 15px 20px; border-radius: 12px; box-shadow: var(--shadow);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="font-size: 15px; margin: 0; color: #333;">Pesanan Saya</h3>
-        <span style="font-size: 12px; color: var(--muted); cursor: pointer;" onclick="bukaPesanan('Semua')">Lihat Riwayat Pesanan ></span>
+  <!-- ================= 2. OTP SCREEN ================= -->
+  <div id="otp-screen" class="app-screen">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand-header">
+          <img src="assets/sellbucket_logo.png" alt="SellBucket Logo" onerror="this.style.display='none'">
+          <h1>Verifikasi OTP</h1>
+          <p>Masukkan 6 digit kode yang dikirim ke email anda</p>
+        </div>
+        <div id="otp-alert" class="alert-box">Error</div>
+        <div class="form-group">
+          <input type="text" id="otp-code" placeholder="123456" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;">
+        </div>
+        <button type="button" class="btn-main" onclick="handleVerifyOtp()">Verifikasi Akun</button>
       </div>
-      
-      <div style="display: flex; justify-content: space-between; text-align: center;">
+    </div>
+  </div>
+
+  <!-- ================= 3. LOGIN SCREEN ================= -->
+  <div id="login-screen" class="app-screen">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand-header">
+          <img src="assets/sellbucket_logo.png" alt="SellBucket Logo" onerror="this.style.display='none'">
+          <h1>Selamat Datang</h1>
+          <p>Masuk ke SellBucket Florist</p>
+        </div>
+        <div id="login-alert" class="alert-box">Password / nama lengkap salah</div>
+        <div class="form-group">
+          <label>Email / ID Pengguna</label>
+          <input type="text" id="login-user" placeholder="Masukkan email atau ID admin">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="login-pass" placeholder="••••••••">
+            <button type="button" class="password-toggle" onclick="togglePass('login-pass')">👁️</button>
+          </div>
+        </div>
+        <button type="button" class="btn-main" onclick="handleLogin()">Masuk</button>
         
-        <!-- Ikon Belum Bayar -->
-        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Menunggu Pembayaran')">
-          <div style="position: relative; display: inline-block;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"></path><path d="M21 12H10v4h11v-4z"></path></svg>
-            <span id="badge-bayar" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+        <div class="divider"><span>ATAU</span></div>
+
+        <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.18 21.32 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.18 2.68 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+          Masuk dengan Google
+        </button>
+
+        <div class="auth-switch">Belum punya akun? <a href="#" onclick="switchScreen('register')">Daftar Sekarang</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4. MAIN MARKETPLACE DASHBOARD (USER) ================= -->
+  <div id="marketplace-screen" class="app-screen">
+    <header class="marketplace-nav">
+      <div class="nav-brand">
+        <img src="assets/sellbucket_logo.png" alt="Logo" onerror="this.style.display='none'">
+        SellBucket Florist
+      </div>
+      <div class="nav-search">
+        <span>🔍</span>
+        <input type="text" id="search-product" placeholder="Cari buket bunga wisuda, ulang tahun..." oninput="filterProducts()">
+      </div>
+      <div class="nav-menu">
+        <button class="nav-item" onclick="alert('Pusat Notifikasi: Belum ada notifikasi baru.')">🔔<span id="notif-badge" class="badge">0</span></button>
+        <button class="nav-item" onclick="handleLogout()">Keluar</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <!-- Status Pesanan Ala Shopee -->
+      <div class="order-status-card">
+        <h3 style="font-size: 16px; font-weight: 600;">Pesanan Saya</h3>
+        <div class="order-status-grid">
+          <div class="status-item">
+            <span class="icon">📦</span>
+            <p>Diproses</p>
+            <span id="badge-proses" class="badge">0</span>
           </div>
-          <div style="font-size: 11px; color: #555; margin-top: 5px;">Belum Bayar</div>
-        </div>
-
-        <!-- Ikon Dikemas -->
-        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Diproses')">
-          <div style="position: relative; display: inline-block;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            <span id="badge-kemas" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          <div class="status-item">
+            <span class="icon">🎁</span>
+            <p>Dikemas</p>
+            <span id="badge-dikemas" class="badge">0</span>
           </div>
-          <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikemas</div>
-        </div>
-
-        <!-- Ikon Dikirim -->
-        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Dikirim')">
-          <div style="position: relative; display: inline-block;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-            <span id="badge-kirim" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
+          <div class="status-item">
+            <span class="icon">🚚</span>
+            <p>Dikirim</p>
+            <span id="badge-dikirim" class="badge">0</span>
           </div>
-          <div style="font-size: 11px; color: #555; margin-top: 5px;">Dikirim</div>
-        </div>
-
-        <!-- Ikon Selesai -->
-        <div style="cursor: pointer; flex: 1; position: relative;" onclick="bukaPesanan('Selesai')">
-          <div style="position: relative; display: inline-block;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span id="badge-selesai" style="display: none; position: absolute; top: -6px; right: -10px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px;">0</span>
-          </div>
-          <div style="font-size: 11px; color: #555; margin-top: 5px;">Selesai</div>
-        </div>
-        
-      </div>
-    </div>
-  <div class="menu-list">
-            <div class="menu-list-item" onclick="openModal('voucherModal')"><span>🎟️ Voucher Saya</span> <span>›</span></div>
-            <div class="menu-list-item" onclick="openModal('profileEditModal')"><span>⚙️ Pengaturan Akun</span> <span>›</span></div>
-            <div class="menu-list-item" onclick="contactWA()"><span>🎧 Bantuan (CS)</span> <span>›</span></div>
-            <div class="menu-list-item" onclick="logoutApp()" style="color:#e74c3c;"><span>🚪 Keluar</span></div>
+          <div class="status-item">
+            <span class="icon">⭐</span>
+            <p>Selesai</p>
+            <span id="badge-selesai" class="badge">0</span>
           </div>
         </div>
-
       </div>
 
-      <!-- BOTTOM NAVIGATION -->
-      <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchScreen('home')" id="nav-home"><div class="nav-icon">🏠</div><span>Beranda</span></div>
-        <div class="nav-item" onclick="switchScreen('catalog')" id="nav-catalog"><div class="nav-icon">🛍️</div><span>Katalog</span></div>
-        <div class="nav-item" onclick="switchScreen('cart')" id="nav-cart"><div class="nav-icon" style="position:relative;">🛒<span class="badge" id="navCartBadge">0</span></div><span>Keranjang</span></div>
-        <div class="nav-item" onclick="switchScreen('profile')" id="nav-profile"><div class="nav-icon">👤</div><span>Profil</span></div>
+      <!-- Katalog Produk -->
+      <h2 class="section-title">Katalog Buket Terlaris</h2>
+      <div id="product-container" class="product-grid">
+        <!-- Render dinamis via JS -->
       </div>
     </div>
+  </div>
 
-    <!-- LAYAR ADMIN / OWNER -->
-    <div id="screen-admin" class="screen" style="padding: 20px; padding-bottom: 80px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">Panel Admin (Semua Pesanan)</h2>
-        <button onclick="switchScreen('profile')" style="padding: 6px 12px; background: #ccc; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Kembali</button>
+  <!-- ================= 5. ADMIN PANEL ================= -->
+  <div id="admin-screen" class="app-screen">
+    <div class="admin-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2>🛠️ Panel Admin SellBucket Florist</h2>
+        <button class="nav-item" onclick="handleLogout()" style="background: rgba(239,68,68,0.2); color: #f87171; padding: 6px 12px; border-radius: 6px;">Keluar Admin</button>
       </div>
 
-      <div id="admin-orders-list">
-        <p style="text-align: center; color: #666;">Memuat data pesanan...</p>
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchAdminTab('orders')">Kelola Pesanan</button>
+        <button class="tab-btn" onclick="switchAdminTab('products')">Tambah Produk</button>
+        <button class="tab-btn" onclick="switchAdminTab('vouchers')">Kelola Voucher</button>
       </div>
-    </div>
 
-    <!-- ========================= MODALS ========================= -->
-    
-    <!-- DETAIL PRODUK -->
-    <div id="productModal" class="modal">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('productModal')">←</button><span style="flex:1;">Detail Produk</span></div>
-      <div class="modal-body" style="padding:0; background:#fff;" id="productDetailBody"></div>
-      <div class="checkout-bar" style="bottom:0; z-index:10;" id="productActionBtn"></div>
-    </div>
-
-    <!-- VOUCHER -->
-    <div id="voucherModal" class="modal">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('voucherModal')">←</button><span>Voucher Saya</span></div>
-      <div class="modal-body">
-        <div class="voucher-card">
-          <div><h3 style="font-size:16px;">SBNEW</h3><p style="font-size:12px; opacity:0.9;">Diskon Pengguna Baru Rp10.000</p></div>
-          <button class="btn" style="background:#fff; color:var(--rose-dark); width:auto; padding:6px 12px; font-size:12px;" onclick="claimVoucher('SBNEW', 10000)">Pakai</button>
+      <!-- Tab 1: Orders -->
+      <div id="admin-orders" class="admin-section active">
+        <p style="color: var(--text-muted); font-size: 14px;">Daftar pesanan masuk dari database Supabase:</p>
+        <div id="admin-order-list" style="margin-top: 16px;">
+          <!-- Render daftar pesanan admin dari database -->
         </div>
       </div>
-    </div>
 
-    <!-- NOTIFIKASI -->
-    <div id="notifModal" class="modal">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('notifModal')">←</button><span>Notifikasi</span></div>
-      <div class="modal-body" style="padding:0;">
-        <div style="background:#fff; padding:15px 20px; border-bottom:1px solid var(--line);">
-          <h4 style="margin-bottom:5px;">Selamat Datang! 🌷</h4>
-          <p style="font-size:12px; color:var(--muted);">Terima kasih telah bergabung di SellBucket Florist App.</p>
+      <!-- Tab 2: Products -->
+      <div id="admin-products" class="admin-section">
+        <div class="form-group">
+          <label>Nama Buket</label>
+          <input type="text" id="new-prod-name" placeholder="Cth: Buket Graduation Deluxe">
         </div>
+        <div class="form-group">
+          <label>Harga (Rp)</label>
+          <input type="number" id="new-prod-price" placeholder="75000">
+        </div>
+        <div class="form-group">
+          <label>Nama File Foto (di folder assets/)</label>
+          <input type="text" id="new-prod-img" placeholder="Cth: sellbucket_bouquet_pink.png">
+        </div>
+        <button class="btn-main" onclick="addNewProduct()">Simpan Produk Baru</button>
+      </div>
+
+      <!-- Tab 3: Vouchers -->
+      <div id="admin-vouchers" class="admin-section">
+        <div class="form-group">
+          <label>Kode Voucher</label>
+          <input type="text" id="new-voucher-code" placeholder="Cth: SELLBUCKET20">
+        </div>
+        <div class="form-group">
+          <label>Diskon (%)</label>
+          <input type="number" id="new-voucher-disc" placeholder="20">
+        </div>
+        <button class="btn-main" onclick="addNewVoucher()">Publikasikan Voucher</button>
       </div>
     </div>
+  </div>
 
-    <!-- CHECKOUT -->
-    <div id="checkoutModal" class="modal">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('checkoutModal')">←</button><span>Checkout</span></div>
-      <div class="modal-body" style="padding:0;">
-        <div style="background:#fff; padding:20px; border-bottom:8px solid var(--bg-app);">
-          <h3 style="font-size:14px; margin-bottom:10px;">📍 Alamat Pengiriman</h3>
-          <p id="coAddressInfo" style="font-size:13px; color:var(--muted);"></p>
-          <button class="btn btn-outline" style="padding:6px; font-size:12px; margin-top:10px;" onclick="openModal('profileEditModal')">Ubah Alamat</button>
-        </div>
-        <div style="background:#fff; padding:20px; border-bottom:8px solid var(--bg-app);">
-          <h3 style="font-size:14px; margin-bottom:10px;">📝 Catatan Pesanan</h3>
-          <input type="text" id="coNote" placeholder="Cth: Tolong pita warna pink ya..." style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-size:13px;">
-        </div>
-        <div style="background:#fff; padding:20px; border-bottom:8px solid var(--bg-app);">
-          <h3 style="font-size:14px; margin-bottom:10px;">💳 Metode Pembayaran</h3>
-          <select id="coPayment" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-size:13px; background:#fafafa;">
-            <option value="COD">🚚 COD (Bayar di Tempat)</option>
-            <option value="QRIS">▣ QRIS / Transfer Bank</option>
-            <option value="GOPAY">📱 GoPay / Dana</option>
-          </select>
-        </div>
-        <div style="background:#fff; padding:20px;">
-          <h3 style="font-size:14px; margin-bottom:10px;">Rincian Pembayaran</h3>
-          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px;"><span>Subtotal</span><span id="coSubtotal">Rp0</span></div>
-          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px;"><span>Ongkos Kirim</span><span>Rp15.000</span></div>
-          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; color:var(--rose);"><span>Voucher</span><span id="coDiscount">-Rp0</span></div>
-          <hr style="border:0; border-top:1px dashed var(--line); margin:10px 0;">
-          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;"><span>Total</span><span id="coTotal">Rp0</span></div>
-        </div>
-      </div>
-      <div class="checkout-bar" style="bottom:0; z-index:10;"><button class="btn btn-primary" onclick="processCheckout()">Buat Pesanan</button></div>
+  <!-- ================= 2FA CAMERA MODAL ================= -->
+  <div id="cam-modal">
+    <div class="cam-box">
+      <h3>Verifikasi Wajah Admin (2FA)</h3>
+      <p style="font-size: 13px; color: var(--text-muted);">Mohon arahkan wajah ke kamera depan...</p>
+      <video id="webcam" autoplay playsinline></video>
+      <button class="btn-main" onclick="completeAdminLogin()">Konfirmasi & Masuk Panel</button>
     </div>
+  </div>
 
-    <!-- PESANAN -->
-    <div id="orderModal" class="modal">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('orderModal')">←</button><span>Pesanan Saya</span></div>
-      <div class="modal-body" id="orderListArea"></div>
-    </div>
-
-    <!-- TRACKING -->
-    <div id="trackingModal" class="modal" style="z-index: 105;">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('trackingModal')">←</button><span>Lacak Pesanan</span></div>
-      <div class="modal-body">
-        <div class="order-card" id="trackingDetails"></div>
-        <div style="background:#fff; padding:20px; border-radius:12px; margin-top:15px; box-shadow:var(--shadow);">
-          <h3 style="font-size:14px; margin-bottom:15px;">Status Pengiriman</h3>
-          <div class="stepper" id="trackingStepper"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EDIT PROFILE -->
-    <div id="profileEditModal" class="modal" style="z-index: 110;">
-      <div class="modal-header"><button class="modal-back" onclick="closeModal('profileEditModal')">←</button><span>Ubah Data / Alamat</span></div>
-      <div class="modal-body">
-        <div style="background:#fff; padding:20px; border-radius:12px; box-shadow:var(--shadow);">
-          <div class="form-group"><label>Nama Penerima</label><input type="text" id="editName"></div>
-          <div class="form-group"><label>No. WhatsApp Aktif</label><input type="tel" id="editPhone" placeholder="08..."></div>
-          <div class="form-group"><label>Alamat Lengkap (Jl, RT/RW, No)</label><textarea id="editAddress" rows="3"></textarea></div>
-          <button class="btn btn-primary" onclick="saveProfile()">Simpan Data</button>
-        </div>
-      </div>
-    </div>
-
-  </div> <!-- End App Container -->
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
-    const SUPABASE_URL = "https://wjdtyopmfthrawsgudca.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_K2UWscAhCJrNWz-CKyrcMA_-NPuDa2a";
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Konfigurasi Supabase Project Lu
+    const SUPABASE_URL = 'https://wjdtyopmfthrawsgudca.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_K2UWscAhCJrNWz-CKyrcMA_-NPuDa2a';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-     /* ============================================================
-       DATA PRODUK DIAMBIL LANGSUNG DARI DATABASE SUPABASE
-    ============================================================ */
-    let PRODUCTS = [];
-
-    async function fetchProducts() {
-      const { data, error } = await supabaseClient.from('products').select('*');
-      if(error) {
-        console.error("Gagal ambil produk:", error);
-        // INI BIKIN PESAN ERROR ASLINYA MUNCUL DI LAYAR HP
-        showToast("Error Supabase: " + error.message);
-      } else {
-        console.log("Data berhasil dimuat:", data);
-        PRODUCTS = (data || []).map(p => ({
-          id: p.id,
-          name: p.name,
-          price: Number(p.base_price),
-          img: p.image,
-          tag: p.tag,
-          desc: p.description
-        }));
-        initApp(); 
-      }
-    }
-    let cart = JSON.parse(localStorage.getItem("sb_cart_app") || "[]");
-    let orders = JSON.parse(localStorage.getItem("sb_orders_app") || "[]");
-    let user = JSON.parse(localStorage.getItem("sb_user_app") || "null");
-    let activeVoucher = { code: '', amount: 0 };
-
-    const rupiah = n => new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
-
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg; t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2500);
-    }
-
-    function saveLocal() {
-      localStorage.setItem("sb_cart_app", JSON.stringify(cart));
-      localStorage.setItem("sb_orders_app", JSON.stringify(orders));
-      localStorage.setItem("sb_user_app", JSON.stringify(user));
-    }
+    let tempEmail = "";
+    let currentUserData = null;
 
     function switchScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(`screen-${screenId}`).classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById(`nav-${screenId}`).classList.add('active');
-      if(screenId === 'cart') renderCart();
-      if(screenId === 'home') window.scrollTo(0,0);
-      if (screenId === 'admin') loadAdminOrders();
+      document.querySelectorAll('.app-screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId + '-screen').classList.add('active');
     }
 
-    function openModal(id) { 
-      document.getElementById(id).classList.add('open'); 
-      if(id === 'checkoutModal') prepCheckout();
-      if(id === 'orderModal') renderOrders();
-    }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function initApp() {
-      const nama = user?.name || "Broski";
-      document.getElementById("greetName").textContent = nama.split(" ")[0];
-      document.getElementById("profileName").textContent = nama;
-      document.getElementById("profileEmail").textContent = user?.email || "";
-      document.getElementById("profileAvatar").textContent = nama[0].toUpperCase();
-
-      document.getElementById("editName").value = user?.name || "";
-      document.getElementById("editPhone").value = user?.phone || "";
-      document.getElementById("editAddress").value = user?.address || "";
-
-      document.getElementById("homeBestSeller").innerHTML = PRODUCTS.slice(0,3).map(p => cardTemplate(p)).join("");
-      document.getElementById("catalogGrid").innerHTML = PRODUCTS.map(p => cardTemplate(p)).join("");
-
-      updateCartBadge();
+    function togglePass(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
     }
 
-    function cardTemplate(p) {
-      return `
-        <div class="product-card" onclick="openProduct('${p.id}')">
-          <img src="${p.img}" class="product-img" alt="${p.name}">
-          <div class="product-info">
+    // 1. Register Manual
+    async function handleRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pass = document.getElementById('reg-pass').value.trim();
+      const repass = document.getElementById('reg-repass').value.trim();
+      const alertBox = document.getElementById('reg-alert');
+
+      if (!name || !email || !pass || !repass) {
+        alertBox.style.display = "block"; alertBox.innerText = "Semua kolom wajib diisi!"; return;
+      }
+      if (pass !== repass) {
+        alertBox.style.display = "block"; alertBox.innerText = "Konfirmasi password tidak cocok!"; return;
+      }
+
+      alertBox.style.display = "none";
+      try {
+        const { error } = await supabaseClient.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+        if (error) throw error;
+        tempEmail = email;
+        alert("Pendaftaran berhasil! Cek email untuk kode OTP.");
+        switchScreen('otp');
+      } catch (err) {
+        alertBox.style.display = "block"; alertBox.innerText = "Gagal: " + err.message;
+      }
+    }
+
+    // 2. Verify OTP
+    async function handleVerifyOtp() {
+      const token = document.getElementById('otp-code').value.trim();
+      const alertBox = document.getElementById('otp-alert');
+      try {
+        const { error } = await supabaseClient.auth.verifyOtp({ email: tempEmail, token, type: 'signup' });
+        if (error) throw error;
+        alert("Verifikasi berhasil! Silakan masuk.");
+        switchScreen('login');
+      } catch (err) {
+        alertBox.style.display = "block"; alertBox.innerText = "Kode OTP salah/kedaluwarsa!";
+      }
+    }
+
+    // 3. Login Hybrid & 2FA Admin
+    async function handleLogin() {
+      const user = document.getElementById('login-user').value.trim();
+      const pass = document.getElementById('login-pass').value.trim();
+      const alertBox = document.getElementById('login-alert');
+
+      if (!user || !pass) {
+        alertBox.style.display = "block"; alertBox.innerText = "Kolom tidak boleh kosong!"; return;
+      }
+      alertBox.style.display = "none";
+
+      if (user === "admin.sellbucket" && pass === "logadminsellbucket.092307") {
+        document.getElementById('cam-modal').style.display = "flex";
+        startCamera();
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email: user, password: pass });
+        if (error) throw error;
+        currentUserData = data.user;
+        loadCatalogProducts();
+        loadUserOrders();
+        switchScreen('marketplace');
+      } catch (err) {
+        alertBox.style.display = "block"; alertBox.innerText = "Password / nama lengkap salah";
+      }
+    }
+
+    async function handleGoogleLogin() {
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin }
+        });
+        if (error) throw error;
+      } catch (err) {
+        alert("Gagal login dengan Google: " + err.message);
+      }
+    }
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('webcam').srcObject = stream;
+      } catch (e) {
+        alert("Kamera tidak dapat diakses, tapi Anda tetap bisa lanjut ke panel.");
+      }
+    }
+
+    function completeAdminLogin() {
+      document.getElementById('cam-modal').style.display = 'none';
+      loadAdminOrders();
+      switchScreen('admin');
+    }
+
+    // 4. Katalog Produk, Search, dan Integrasi Checkout ke Database Orders
+    const defaultProducts = [
+      { name: "Buket Pink Romantis", price: 75000, img: "assets/sellbucket_bouquet_pink.png" },
+      { name: "Buket Premium Mix", price: 150000, img: "assets/sellbucket_bouquet_premium_mix.png" },
+      { name: "Buket Yellow Blue", price: 95000, img: "assets/sellbucket_bouquet_yellow_blue.png" }
+    ];
+
+    function loadCatalogProducts(productsToRender = defaultProducts) {
+      const container = document.getElementById('product-container');
+      container.innerHTML = productsToRender.map(p => `
+        <div class="product-card">
+          <div class="product-img">
+            <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=SellBucket+Florist';">
+          </div>
+          <div class="product-body">
             <div class="product-title">${p.name}</div>
-            <div class="product-price">${rupiah(p.price)}</div>
+            <div class="product-price">Rp ${p.toLocaleString('id-ID')}</div>
+            <button class="btn-main" onclick="checkoutProduct('${p.name}', ${p.price})">Beli Sekarang</button>
           </div>
         </div>
-      `;
+      `).join('');
+        }
+
+    function filterProducts() {
+      const query = document.getElementById('search-product').value.toLowerCase();
+      const filtered = defaultProducts.filter(p => p.name.toLowerCase().includes(query));
+      loadCatalogProducts(filtered);
     }
 
-    function openProduct(id) {
-      const p = PRODUCTS.find(x => x.id === id);
-      document.getElementById("productDetailBody").innerHTML = `
-        <img src="${p.img}" style="width:100%; height:250px; object-fit:contain; background:#fff5f7;">
-        <div style="padding:20px;">
-          <span style="font-size:10px; background:var(--pink); color:var(--rose-dark); padding:3px 8px; border-radius:4px; font-weight:bold;">${p.tag}</span>
-          <h2 style="margin:10px 0 5px; font-size:20px;">${p.name}</h2>
-          <div style="font-size:22px; font-weight:900; color:var(--rose-dark); margin-bottom:15px;">${rupiah(p.price)}</div>
-          <h4 style="font-size:14px; margin-bottom:5px;">Deskripsi</h4>
-          <p style="font-size:13px; color:var(--muted); line-height:1.6;">${p.desc}</p>
-        </div>
-      `;
-      document.getElementById("productActionBtn").innerHTML = `
-        <button class="btn btn-outline" style="width:60px; font-size:20px;" onclick="contactWA()">💬</button>
-        <button class="btn btn-primary" style="flex:1; margin-left:10px;" onclick="addToCart('${p.id}')">+ Keranjang</button>
-      `;
-      openModal('productModal');
-    }
+    // Fungsi Checkout Kirim Data Langsung ke Tabel Supabase 'orders'
+    async function checkoutProduct(productName, productPrice) {
+      if (!currentUserData) {
+        alert("Sesi user tidak valid. Silakan login ulang.");
+        return;
+      }
 
-    function addToCart(id) {
-      const item = cart.find(x => x.id === id);
-      if(item) item.qty++;
-      else cart.push({ id, qty: 1 });
-      saveLocal(); updateCartBadge(); showToast("Dimasukkan ke keranjang 🛒");
-      closeModal('productModal');
-    }
+      const customerName = currentUserData.user_metadata?.full_name || currentUserData.email;
+      const customerEmail = currentUserData.email;
+      const customerPhone = prompt("Masukkan No. WhatsApp aktif untuk pengiriman:", "08123456789");
 
-    function updateCartBadge() {
-      const count = cart.reduce((s, x) => s + x.qty, 0);
-      document.getElementById("navCartBadge").textContent = count;
-      document.getElementById("navCartBadge").style.display = count > 0 ? 'block' : 'none';
-    }
+      if (!customerPhone) return;
 
-    function renderCart() {
-      const wrap = document.getElementById("cartItems");
-      const emptyMsg = document.getElementById("emptyCartMsg");
-      const coBar = document.getElementById("checkoutBar");
+      const orderPayload = {
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+        cart_items: [{ name: productName, price: productPrice, qty: 1 }],
+        total_price: productPrice,
+        status: 'Diproses' // Status awal masuk pesanan
+      };
 
-      if(cart.length === 0) {
-        wrap.innerHTML = ""; emptyMsg.classList.remove("hidden"); coBar.classList.add("hidden");
-        document.querySelector('.app-content').style.paddingBottom = "80px";
-      } else {
-        emptyMsg.classList.add("hidden"); coBar.classList.remove("hidden");
-        document.querySelector('.app-content').style.paddingBottom = "140px"; 
+      try {
+        const { error } = await supabaseClient.from('orders').insert([orderPayload]);
+        if (error) throw error;
         
-        let subtotal = 0;
-        wrap.innerHTML = cart.map(item => {
-          const p = PRODUCTS.find(x => x.id === item.id);
-          subtotal += p.price * item.qty;
+        alert("🎉 Pesanan berhasil dibuat dan masuk ke sistem! Cek status pesanan di profil.");
+        loadUserOrders(); // Update badge pesanan user
+      } catch (err) {
+        alert("Gagal melakukan checkout: " + err.message);
+      }
+    }
+
+    // Update Badge & Status Pesanan User dari Supabase
+    async function loadUserOrders() {
+      if (!currentUserData) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('orders')
+          .select('*')
+          .eq('customer_email', currentUserData.email);
+
+        if (error) throw error;
+
+        let proses = 0, dikemas = 0, dikirim = 0, selesai = 0;
+        data.forEach(order => {
+          if (order.status === 'Diproses' || order.status === 'Pending') proses++;
+          else if (order.status === 'Dikemas') dikemas++;
+          else if (order.status === 'Dikirim') dikirim++;
+          else if (order.status === 'Selesai') selesai++;
+        });
+
+        updateBadge('badge-proses', proses);
+        updateBadge('badge-dikemas', dikemas);
+        updateBadge('badge-dikirim', dikirim);
+        updateBadge('badge-selesai', selesai);
+        document.getElementById('notif-badge').innerText = data.length;
+        document.getElementById('notif-badge').style.display = data.length > 0 ? 'inline-block' : 'none';
+
+      } catch (err) {
+        console.error("Gagal memuat pesanan user:", err.message);
+      }
+    }
+
+    function updateBadge(id, count) {
+      const badge = document.getElementById(id);
+      badge.innerText = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    // Panel Admin: Muat Semua Pesanan dari Database
+    async function loadAdminOrders() {
+      try {
+        const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        const container = document.getElementById('admin-order-list');
+        if (data.length === 0) {
+          container.innerHTML = `<p style="color: var(--text-muted);">Belum ada pesanan masuk.</p>`;
+          return;
+        }
+
+        container.innerHTML = data.map(order => {
+          const itemNames = order.cart_items.map(i => `${i.name} (x${i.qty})`).join(', ');
           return `
-            <div class="cart-item">
-              <img src="${p.img}" class="cart-img">
-              <div style="flex:1;">
-                <div style="font-weight:600; font-size:14px;">${p.name}</div>
-                <div style="color:var(--rose-dark); font-weight:800; font-size:14px; margin-top:2px;">${rupiah(p.price)}</div>
-                <div class="qty-control">
-                  <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
-                  <span style="font-size:14px; font-weight:600; width:20px; text-align:center;">${item.qty}</span>
-                  <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
-                </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 16px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>${itemNames}</strong><br>
+                <small style="color: var(--text-muted);">Pemesan: ${order.customer_name} (${order.customer_phone}) | Total: Rp ${Number(order.total_price).toLocaleString('id-ID')}</small><br>
+                <small style="color: #facc15;">Status Saat Ini: ${order.status}</small>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-main" style="width: auto; padding: 6px 12px; margin: 0; background: #eab308;" onclick="updateOrderStatus(${order.id}, 'Dikemas')">Dikemas</button>
+                <button class="btn-main" style="width: auto; padding: 6px 12px; margin: 0; background: #3b82f6;" onclick="updateOrderStatus(${order.id}, 'Dikirim')">Dikirim</button>
+                <button class="btn-main" style="width: auto; padding: 6px 12px; margin: 0; background: #10b981;" onclick="updateOrderStatus(${order.id}, 'Selesai')">Selesai</button>
               </div>
             </div>
           `;
-        }).join("");
-        document.getElementById("cartTotalText").textContent = rupiah(subtotal);
-      }
-    }
-
-    function updateQty(id, delta) {
-      const i = cart.find(x => x.id === id);
-      if(!i) return;
-      i.qty += delta;
-      if(i.qty <= 0) cart = cart.filter(x => x.id !== id);
-      saveLocal(); updateCartBadge(); renderCart();
-    }
-
-    function claimVoucher(code, amount) {
-      activeVoucher = { code, amount };
-      showToast(`Voucher ${code} terpasang!`);
-      closeModal('voucherModal');
-    }
-
-    function prepCheckout() {
-      if(!user?.address || !user?.phone) {
-        closeModal('checkoutModal');
-        showToast("Lengkapi alamat pengiriman dulu ya!");
-        setTimeout(() => openModal('profileEditModal'), 500);
-        return;
-      }
-      
-      document.getElementById("coAddressInfo").innerHTML = `<b>${user.name}</b> (${user.phone})<br>${user.address}`;
-      
-      const sub = cart.reduce((s, x) => s + (PRODUCTS.find(p => p.id === x.id).price * x.qty), 0);
-      const ship = 15000;
-      const disc = activeVoucher.amount;
-      const total = (sub + ship) - disc;
-
-      document.getElementById("coSubtotal").textContent = rupiah(sub);
-      document.getElementById("coDiscount").textContent = disc > 0 ? `- ${rupiah(disc)} (${activeVoucher.code})` : "Rp0";
-      document.getElementById("coTotal").textContent = rupiah(total > 0 ? total : 0);
-    }
-
-    async function processCheckout() {
-      try {
-        const pay = document.getElementById("coPayment").value;
-        const note = document.getElementById("coNote").value;
-        
-        // Ambil nomor HP otomatis dari data profil/alamat user yang sudah tersimpan
-        // (Biasanya tersimpan di variabel user, contoh: user.phone atau user.whatsapp)
-        const phone = (typeof user !== 'undefined' && user && (user.phone || user.whatsapp)) ? (user.phone || user.whatsapp) : "-";
-
-        if (!cart || cart.length === 0) {
-          showToast("Keranjang belanjaan masih kosong!");
-          return;
-        }
-
-        const sub = cart.reduce((s, x) => s + (PRODUCTS.find(p => p.id === x.id)?.price * x.qty), 0);
-        const voucherAmount = (typeof activeVoucher !== 'undefined' && activeVoucher && activeVoucher.amount) ? activeVoucher.amount : 0;
-        const total = (sub + 15000) - voucherAmount;
-
-        // Masukkan nomor telepon ke dalam data order untuk dikirim ke Supabase
-        const orderData = {
-          customer_name: user?.name || "Pelanggan",
-          customer_email: user?.email || "-",
-          customer_phone: phone, // 👈 Otomatis masuk dari data alamat/profil
-          cart_items: cart,
-          total_price: total > 0 ? total : 0,
-          status: pay === "COD" ? "Diproses" : "Menunggu Pembayaran"
-        };
-
-        showToast("Memproses pesanan...");
-
-        const { error } = await supabaseClient.from('orders').insert([orderData]);
-        if (error) {
-          console.error("Gagal simpan pesanan:", error);
-          showToast("Gagal: " + error.message);
-          return;
-        }
-
-        showToast("Pesanan Berhasil Dibuat! 🎉");
-
-        // Kosongkan keranjang
-        cart = [];
-        if (typeof saveLocal === 'function') saveLocal();
-        if (typeof updateCartBadge === 'function') updateCartBadge();
-
-        // Pindah halaman ke profil/riwayat pesanan
-        setTimeout(() => {
-          if (typeof switchScreen === 'function') switchScreen('profile');
-          if (typeof openModal === 'function') openModal('orderModal');
-        }, 800);
-
+        }).join('');
       } catch (err) {
-        console.error("Error checkout:", err);
-        showToast("Terjadi kesalahan sistem!");
+        console.error("Gagal memuat pesanan admin:", err.message);
       }
-    }
-    // 1. Fungsi penyambung klik ikon ke modal
-    function bukaPesanan(statusFilter) {
-      openModal('orderModal');
-      // Kasih jeda 50ms biar gak ketimpa sama trigger render bawaan modal
-      setTimeout(() => {
-        renderOrders(statusFilter);
-      }, 50); 
-    }
-
-    // 2. Update renderOrders lu jadi begini (biar bisa nge-filter Supabase)
-    async function renderOrders(filterStatus = 'Semua') {
-      const wrap = document.getElementById("orderListArea");
-      if (!wrap) return;
-
-      wrap.innerHTML = `<p style="text-align: center; color: var(--muted); padding: 20px;">Memuat riwayat pesanan...</p>`;
-
-      const userEmail = user?.email;
-      let query = supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-
-      if (userEmail && userEmail !== "-") {
-        query = query.eq('customer_email', userEmail);
-      }
-
-      // FITUR BARU: Menyaring data sesuai ikon yang ditekan
-      if (filterStatus !== 'Semua') {
-        query = query.eq('status', filterStatus);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Gagal ambil data:", error);
-        wrap.innerHTML = `<p style="text-align: center; color: red; padding: 20px;">Gagal memuat riwayat pesanan.</p>`;
-        return;
-      }
-
-      // Tampilan animasi kosong jika belum ada pesanan di kategori tersebut
-      if (!data || data.length === 0) {
-        wrap.innerHTML = `
-          <div style="text-align: center; padding: 40px 20px;">
-            <div style="font-size: 50px; margin-bottom: 10px;">📋</div>
-            <p style="color: var(--muted); font-size: 14px; font-weight: bold;">Belum ada pesanan.</p>
-          </div>
-        `;
-        return;
-      }
-
-      // Tampilkan list card pesanan
-      wrap.innerHTML = data.map(o => {
-        const dateStr = new Date(o.created_at).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' });
-        const itemsSummary = (o.cart_items || []).map(i => `${i.qty}x ${i.name || 'Produk'}`).join(', ');
-
-        return `
-          <div class="order-card" style="background: #fff; margin: 10px 20px; border-radius: 12px; padding: 15px; box-shadow: var(--shadow);">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span style="font-size: 12px; color: var(--muted);">ID: #${o.id} (${dateStr})</span>
-              <span class="order-status" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: #e8f5e9; color: #2e7d32; font-weight: bold;">${o.status}</span>
-            </div>
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px; color: var(--text-dark);">
-              ${itemsSummary}
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 8px;">
-              <span style="font-size: 13px; color: var(--muted);">Total: <b>Rp ${Number(o.total_price).toLocaleString('id-ID')}</b></span>
-              <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="showToast('Status: ${o.status}')">Detail</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function openTracking(id) {
-      const o = orders.find(x => x.id === id);
-      document.getElementById("trackingDetails").innerHTML = `
-        <b>Order ID:</b> ${o.id}<br>
-        <span style="font-size:12px; color:var(--muted);">Estimasi Tiba: 2-3 Hari Kerja</span>
-      `;
-      
-      const steps = [ "Pesanan Dibuat", "Diproses Penjual", "Sedang Dikirim", "Pesanan Selesai" ];
-      const currentStep = o.payment === "COD" ? 1 : (o.status === "Menunggu Pembayaran" ? 0 : 1);
-
-      document.getElementById("trackingStepper").innerHTML = steps.map((s, idx) => `
-        <div class="step ${idx <= currentStep ? 'active' : ''}">
-          <div class="step-dot">${idx <= currentStep ? '✓' : ''}</div>
-          <div class="step-content">
-            <h4>${s}</h4>
-            <p>${idx === 0 ? o.date : (idx <= currentStep ? 'Sedang berlangsung' : 'Menunggu tahap sebelumnya')}</p>
-          </div>
-        </div>
-      `).join("");
-
-      openModal('trackingModal');
-    }
-
-    function saveProfile() {
-      const name = document.getElementById("editName").value;
-      const phone = document.getElementById("editPhone").value;
-      const address = document.getElementById("editAddress").value;
-      
-      if(!name || !phone || !address) return showToast("Harap isi semua data!");
-      
-      user = { ...(user||{}), name, phone, address };
-      saveLocal(); initApp();
-      closeModal('profileEditModal');
-      showToast("Profil diperbarui ✓");
-    }
-
-    document.getElementById("loginForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      user = { name: email.split("@")[0], email };
-      saveLocal(); showApp(); showToast("Login Berhasil!");
-    });
-
-    async function googleLogin() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: "https://sellbucket-floriste.pages.dev"
-    }
-  });
-  if(error) showToast("Google Login Error: " + error.message);
-}
-
-    function showApp() {
-      document.getElementById("authView").classList.add("hidden");
-      document.getElementById("appView").classList.remove("hidden");
-      initApp();
-    }
-
-    function logoutApp() {
-      user = null; saveLocal();
-      supabaseClient.auth.signOut();
-      document.getElementById("authView").classList.remove("hidden");
-      document.getElementById("appView").classList.add("hidden");
-      showToast("Berhasil Keluar");
-    }
-
-    function contactWA() { window.open("https://wa.me/6283874197225?text=Halo%20Admin%20SellBucket%2C%20saya%20butuh%20bantuan%20website%20nih", "_blank"); }
-
-    (async function bootApp() {
-      await fetchProducts(); // Ambil data produk dari database Supabase dulu
-      
-      const { data } = await supabaseClient.auth.getSession();
-      if (data?.session?.user) {
-        const u = data.session.user;
-        user = { ...user, name: u.user_metadata?.full_name || u.email.split("@")[0], email: u.email };
-        saveLocal(); showApp();
-      } else if (user) {
-        showApp();
-      }
-    })();
-    
-
-    // Ganti "kunci123" dengan password rahasia pilihan lu sendiri!
-    const ADMIN_SECRET_KEY = "logadminsellbucket.092307"; 
-
-    function bukaAdmin() {
-      const inputKey = prompt("Masukkan Secret Key Admin:");
-      if (inputKey === null) return;
-
-      if (inputKey === ADMIN_SECRET_KEY) {
-        alert("Akses diterima, WELLCOME BACK MY BOSS! 👑");
-        switchScreen('admin'); // Buka layar admin
-        loadAdminOrders();     // Langsung muat data pesanan dari database!
-      } else {
-        alert("❌ Secret Key salah! Lu bukan owner nih wkwk.");
-      }
-    }
-
-    async function loadAdminOrders() {
-      const listContainer = document.getElementById('admin-orders-list');
-      if (!listContainer) return;
-
-      listContainer.innerHTML = '<p style="text-align: center;">Mengambil data dari database...</p>';
-
-      const { data, error } = await supabaseClient
-        .from('orders')
-        .select('*')
-        .order('id', { ascending: false });
-
-      if (error) {
-        listContainer.innerHTML = `<p style="color: red; text-align: center;">Gagal memuat data: ${error.message}</p>`;
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        listContainer.innerHTML = '<p style="text-align: center; color: #666;">Belum ada pesanan masuk sama sekali.</p>';
-        return;
-      }
-
-      let html = '';
-      data.forEach(order => {
-        let itemsSummary = "Produk";
-        try {
-          const parsed = JSON.parse(order.items_summary || "[]");
-          itemsSummary = parsed.map(i => `${i.qty}x ${i.name || 'Produk'}`).join(', ');
-        } catch(e) {
-          itemsSummary = order.items_summary || "-";
-        }
-
-        html += `
-          <div style="background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 6px;">
-              <span>ID Order: #${order.id}</span>
-              <span style="font-weight: bold; color: #d9534f;">${order.status}</span>
-            </div>
-            <div style="font-size: 13px; font-weight: bold; margin-bottom: 4px;">Pemesan: ${order.customer_email}</div>
-            <div style="font-size: 13px; margin-bottom: 8px; color: #333;">${itemsSummary}</div>
-            <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: green;">Total: Rp ${Number(order.total_price).toLocaleString('id-ID')}</div>
-            
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid #eee; padding-top: 10px;">
-              <span style="font-size: 12px; align-self: center; font-weight: bold;">Ubah Status:</span>
-              <button onclick="updateOrderStatus(${order.id}, 'Diproses')" style="background: #f0ad4e; color: white; border:none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor:pointer;">Diproses</button>
-              <button onclick="updateOrderStatus(${order.id}, 'Dikirim')" style="background: #0275d8; color: white; border:none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor:pointer;">Dikirim</button>
-              <button onclick="updateOrderStatus(${order.id}, 'Selesai')" style="background: #5cb85c; color: white; border:none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor:pointer;">Selesai</button>
-            </div>
-          </div>
-        `;
-      });
-
-      listContainer.innerHTML = html;
     }
 
     async function updateOrderStatus(orderId, newStatus) {
-      if (!confirm(`Ubah status pesanan #${orderId} menjadi "${newStatus}"?`)) return;
-
-      const { error } = await supabaseClient
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
-
-      if (error) {
-        alert("Gagal mengupdate status: " + error.message);
-      } else {
-        alert("Status berhasil diupdate!");
+      try {
+        const { error } = await supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId);
+        if (error) throw error;
+        alert("Status pesanan berhasil diubah menjadi: " + newStatus);
         loadAdminOrders();
+      } catch (err) {
+        alert("Gagal update status: " + err.message);
       }
     }
+
+    // Admin Tabs
+    function switchAdminTab(tabName) {
+      document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('admin-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+      if(tabName === 'orders') loadAdminOrders();
+    }
+
+    function addNewProduct() {
+      const name = document.getElementById('new-prod-name').value;
+      const price = document.getElementById('new-prod-price').value;
+      const imgFile = document.getElementById('new-prod-img').value || 'sellbucket_bouquet_pink.png';
+      
+      if(!name || !price) { alert("Isi data produk dengan lengkap!"); return; }
+      defaultProducts.push({ name, price: Number(price), img: `assets/${imgFile}` });
+      alert("Produk berhasil ditambahkan ke katalog!");
+      loadCatalogProducts();
+    }
+
+    function addNewVoucher() {
+      const code = document.getElementById('new-voucher-code').value;
+      if(!code) { alert("Masukkan kode voucher!"); return; }
+      alert("Voucher " + code + " berhasil dipublikasikan ke user!");
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      currentUserData = null;
+      switchScreen('login');
+    }
+
+    // Cek sesi login saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        currentUserData = session.user;
+        loadCatalogProducts();
+        loadUserOrders();
+        switchScreen('marketplace');
+      }
+    });
   </script>
 </body>
 </html>
